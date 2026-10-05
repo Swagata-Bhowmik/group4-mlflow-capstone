@@ -1,0 +1,105 @@
+{
+  "purpose": "Initial validation comparison, not final test performance or production release",
+  "configuration": {
+    "data_path": "capstone_house_prices_train.csv",
+    "output_dir": "experiments/baseline_results",
+    "id_column": "House_ID",
+    "target": "Price_Lakhs",
+    "random_seed": 42,
+    "test_fraction": 0.2,
+    "validation_fraction": 0.2,
+    "selection_metric": "mae",
+    "numeric_features": [
+      "Area_sqft",
+      "Bedrooms",
+      "Bathrooms",
+      "Age_Years",
+      "Distance_to_Center_km",
+      "Neighborhood_Score",
+      "Has_Parking"
+    ],
+    "categorical_features": [
+      "Property_Condition",
+      "City_Zone"
+    ],
+    "preprocessing": {
+      "numeric_imputation": "median",
+      "categorical_imputation": "most_frequent",
+      "unknown_categories": "ignore"
+    },
+    "models": {
+      "dummy_median": {
+        "strategy": "median"
+      },
+      "ridge": {
+        "alpha": 10.0
+      },
+      "random_forest": {
+        "n_estimators": 300,
+        "min_samples_leaf": 2,
+        "n_jobs": 1
+      },
+      "histogram_gradient_boosting": {
+        "learning_rate": 0.08,
+        "max_iter": 200,
+        "max_leaf_nodes": 15,
+        "l2_regularization": 1.0
+      }
+    }
+  },
+  "configuration_sha256": "319ecf3a4ab78d7836b79d293bbf94a257166052e36b493f6a0e51a58d658109",
+  "source_sha256": "8696565fd2a80775efee9574463c81877a23cbf51314a72e5919c81936036a3c",
+  "source_unchanged": true,
+  "partition_rows": {
+    "train": 2400,
+    "validation": 800,
+    "test_reserved": 800
+  },
+  "test_evaluated": false,
+  "incoming_batches_loaded": false,
+  "selected_on": "lowest validation MAE",
+  "selected_model": "ridge",
+  "results": [
+    {
+      "model": "ridge",
+      "validation_mae_lakhs": 5.741987567526319,
+      "validation_rmse_lakhs": 7.522183872653155,
+      "validation_r2": 0.8903734197234274,
+      "training_mae_lakhs": 5.622686051125137,
+      "fit_seconds": 0.005031583001255058
+    },
+    {
+      "model": "histogram_gradient_boosting",
+      "validation_mae_lakhs": 6.002202192462709,
+      "validation_rmse_lakhs": 7.817983077296362,
+      "validation_r2": 0.8815820799635103,
+      "training_mae_lakhs": 3.8752426578913144,
+      "fit_seconds": 0.09517633299401496
+    },
+    {
+      "model": "random_forest",
+      "validation_mae_lakhs": 7.942844119857458,
+      "validation_rmse_lakhs": 10.15182225133152,
+      "validation_r2": 0.8003285431354504,
+      "training_mae_lakhs": 3.4995973002361067,
+      "fit_seconds": 0.9597733749978943
+    },
+    {
+      "model": "dummy_median",
+      "validation_mae_lakhs": 17.7294375,
+      "validation_rmse_lakhs": 22.721338041035345,
+      "validation_r2": -0.00022057196488112218,
+      "training_mae_lakhs": 17.181775,
+      "fit_seconds": 0.005008125008316711
+    }
+  ],
+  "environment": {
+    "python": "3.12.0",
+    "pandas": "2.3.3",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "scikit-learn": "1.8.0",
+    "PyYAML": "6.0.3",
+    "joblib": "1.5.3"
+  }
+}

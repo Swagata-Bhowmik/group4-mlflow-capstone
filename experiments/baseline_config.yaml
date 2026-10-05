@@ -1,0 +1,38 @@
+# Exploratory baseline settings; not yet the full production pipeline configuration.
+data_path: capstone_house_prices_train.csv
+output_dir: experiments/baseline_results
+id_column: House_ID
+target: Price_Lakhs
+random_seed: 42
+test_fraction: 0.20
+validation_fraction: 0.20
+selection_metric: mae
+numeric_features:
+  - Area_sqft
+  - Bedrooms
+  - Bathrooms
+  - Age_Years
+  - Distance_to_Center_km
+  - Neighborhood_Score
+  - Has_Parking
+categorical_features:
+  - Property_Condition
+  - City_Zone
+preprocessing:
+  numeric_imputation: median
+  categorical_imputation: most_frequent
+  unknown_categories: ignore
+models:
+  dummy_median:
+    strategy: median
+  ridge:
+    alpha: 10.0
+  random_forest:
+    n_estimators: 300
+    min_samples_leaf: 2
+    n_jobs: 1
+  histogram_gradient_boosting:
+    learning_rate: 0.08
+    max_iter: 200
+    max_leaf_nodes: 15
+    l2_regularization: 1.0
