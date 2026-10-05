@@ -1,0 +1,12 @@
+.venv
+.downloads
+.git
+state
+__pycache__
+.pytest_cache
+*.docx
+*.log
+.env*
+experiments
+
+setup-git-identities.local.sh

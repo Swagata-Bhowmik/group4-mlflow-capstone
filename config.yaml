@@ -1,0 +1,63 @@
+project: group4-house-prices
+paths:
+  training: capstone_house_prices_train.csv
+  incoming: capstone_incoming_batches.csv
+  state: state
+  reports: reports
+seed: 42
+split:
+  test: 0.2
+  validation: 0.2
+features:
+  numeric: [Area_sqft, Bedrooms, Bathrooms, Age_Years, Distance_to_Center_km, Neighborhood_Score, Has_Parking]
+  categorical: [Property_Condition, City_Zone]
+  target: Price_Lakhs
+  identifier: House_ID
+schema:
+  missing_allowed: [Age_Years, Distance_to_Center_km, Neighborhood_Score]
+  max_missing_fraction: 0.08
+  min_rows: 100
+  ranges:
+    Area_sqft: [100, 10000]
+    Bedrooms: [1, 20]
+    Bathrooms: [1, 20]
+    Age_Years: [0, 150]
+    Distance_to_Center_km: [0, 200]
+    Neighborhood_Score: [1, 10]
+    Has_Parking: [0, 1]
+    Price_Lakhs: [0.01, 10000]
+  integers: [Area_sqft, Bedrooms, Bathrooms, Age_Years, Has_Parking]
+  categories:
+    Property_Condition: [Poor, Fair, Good, Excellent]
+    City_Zone: [North, South, East, West, Central]
+model:
+  kind: ridge
+  alpha: 10.0
+  numeric_imputation: median
+  categorical_imputation: most_frequent
+  unknown_categories: ignore
+  dummy_strategy: median
+quality:
+  max_mae: 7.0
+  max_rmse: 9.0
+  max_relative_regression: 0.02
+  reproducibility_tolerance: 0.000001
+tracking:
+  experiment: group4-capstone
+  registered_model: house-price-regressor
+monitoring:
+  ks_threshold: 0.10
+  categorical_tv_threshold: 0.10
+  max_mae: 7.0
+  max_mae_ratio: 1.25
+  max_missing_delta: 0.03
+  max_model_age_days: 30
+  p95_latency_seconds: 0.20
+  max_error_rate: 0.01
+  benchmark_requests: 100
+  prediction_buckets: [10, 25, 50, 75, 100, 150, 250, 500]
+  latency_buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.2, 0.5, 1, 5]
+serving:
+  host: 0.0.0.0
+  port: 8000
+  max_batch_size: 500

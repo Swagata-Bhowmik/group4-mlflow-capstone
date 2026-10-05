@@ -1,0 +1,15 @@
+.venv/
+.downloads/
+state/
+__pycache__/
+.pytest_cache/
+*.pyc
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+experiments/baseline_results/selected_model.joblib
+tmp/
+*.zip
+setup-git-identities.local.sh
