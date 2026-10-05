@@ -1,0 +1,39 @@
+groups:
+- name: capstone
+  rules:
+  - alert: HighPredictionLatency
+    expr: histogram_quantile(0.95, sum(rate(prediction_latency_seconds_bucket[5m]))
+      by (le)) > 0.2
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Investigate prediction latency; retain the serving model
+  - alert: PredictionErrors
+    expr: sum(rate(prediction_requests_total{status!="200"}[5m])) / clamp_min(sum(rate(prediction_requests_total[5m])),
+      0.000001) > 0.01
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Inspect invalid requests and serving errors
+  - alert: ModelStale
+    expr: model_age_days > 30
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: Schedule a candidate run; require all gates before promotion
+  - alert: ModelReloadFailed
+    expr: increase(model_reload_failures_total[5m]) > 0
+    labels:
+      severity: critical
+    annotations:
+      summary: Candidate reload failed; inspect artifacts and rollback through pipeline
+  - alert: APIUnavailable
+    expr: up{job="house-price-api"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: Restore API or roll back container release

@@ -1,0 +1,29 @@
+name: Quality checks
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Unit and integration tests
+        run: python -m pytest -q --junitxml=reports/junit.xml
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+      - name: Lightweight pipeline through model gate
+        run: python -m capstone run --stop-after evaluate
+      - name: Upload measured evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-evidence
+          path: reports/

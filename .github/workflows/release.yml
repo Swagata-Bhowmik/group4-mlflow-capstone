@@ -1,0 +1,84 @@
+name: Build and release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      image_ref: ${{ steps.image.outputs.name }}@${{ steps.publish.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Docker Hub settings
+        id: image
+        shell: bash
+        env:
+          HUB_USER: ${{ vars.DOCKERHUB_USERNAME }}
+          HUB_REPO: ${{ vars.DOCKERHUB_REPOSITORY || 'group4-mlflow-capstone' }}
+          HUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [[ ! "$HUB_USER" =~ ^[a-z0-9][a-z0-9_-]*$ ]] || [[ ! "$HUB_REPO" =~ ^[a-z0-9][a-z0-9._-]*$ ]] || [[ -z "$HUB_TOKEN" ]]; then
+            echo "Configure DOCKERHUB_USERNAME, optional DOCKERHUB_REPOSITORY, and secret DOCKERHUB_TOKEN."
+            exit 1
+          fi
+          echo "name=${HUB_USER}/${HUB_REPO}" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.lock
+      - run: python -m pytest -q
+      - name: Generate monitoring configuration
+        run: PYTHONPATH=. python scripts/generate_monitoring_config.py
+      - name: Container smoke check
+        run: |
+          docker compose build
+          docker compose --profile jobs run --rm pipeline
+          docker compose up -d --wait api
+          curl --fail http://localhost:8000/health
+          docker compose down
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        id: publish
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.image.outputs.name }}:${{ github.sha }}
+          labels: org.opencontainers.image.revision=${{ github.sha }}
+      - name: Publish image release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE: ${{ steps.image.outputs.name }}:${{ github.sha }}
+          IMAGE_REF: ${{ steps.image.outputs.name }}@${{ steps.publish.outputs.digest }}
+        run: |
+          printf 'Docker Hub image tag: `%s`\n\nExact image digest: `%s`\n\nThe configured capstone runner deploys this digest when ENABLE_LOCAL_DEPLOY=true. Otherwise use docs/DOCKER_HUB_DEPLOYMENT.md on your Docker host.\n' "$IMAGE" "$IMAGE_REF" > release-notes.md
+          gh release create "build-${GITHUB_SHA}" --title "House-price API ${GITHUB_SHA:0:7}" --notes-file release-notes.md
+  deploy:
+    if: vars.ENABLE_LOCAL_DEPLOY == 'true'
+    needs: release
+    runs-on: [self-hosted, capstone]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Gate and deploy release
+        shell: bash
+        env:
+          CAPSTONE_IMAGE: ${{ needs.release.outputs.image_ref }}
+          COMPOSE_PROJECT_NAME: group4-capstone
+        run: bash scripts/deploy.sh
