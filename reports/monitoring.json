@@ -1,0 +1,229 @@
+{
+  "created": "2026-10-05T06:13:27.308241+00:00",
+  "reference": "Training partition of deployed model",
+  "reference_rows": 2400,
+  "model_version": 1,
+  "policy": "Effect-size thresholds; not significance tests. Input changes alone do not prove performance degradation.",
+  "batches": [
+    {
+      "batch": 1,
+      "rows": 500,
+      "model_version": 1,
+      "mae": 5.562414948332104,
+      "rmse": 7.239118385412867,
+      "mae_ratio": 0.9687264005568761,
+      "feature_statistics": {
+        "Area_sqft": {
+          "method": "KS D",
+          "value": 0.036083333333333335,
+          "threshold": 0.1
+        },
+        "Bedrooms": {
+          "method": "KS D",
+          "value": 0.011833333333333333,
+          "threshold": 0.1
+        },
+        "Bathrooms": {
+          "method": "KS D",
+          "value": 0.011583333333333333,
+          "threshold": 0.1
+        },
+        "Age_Years": {
+          "method": "KS D",
+          "value": 0.018055555555555554,
+          "threshold": 0.1
+        },
+        "Distance_to_Center_km": {
+          "method": "KS D",
+          "value": 0.05406517326373786,
+          "threshold": 0.1
+        },
+        "Neighborhood_Score": {
+          "method": "KS D",
+          "value": 0.022585821433722775,
+          "threshold": 0.1
+        },
+        "Has_Parking": {
+          "method": "KS D",
+          "value": 0.026333333333333334,
+          "threshold": 0.1
+        },
+        "Property_Condition": {
+          "method": "total variation",
+          "value": 0.03425000000000002,
+          "threshold": 0.1
+        },
+        "City_Zone": {
+          "method": "total variation",
+          "value": 0.015666666666666676,
+          "threshold": 0.1
+        }
+      },
+      "drifted_features": [],
+      "missingness_deltas": {
+        "Area_sqft": 0.0,
+        "Bedrooms": 0.0,
+        "Bathrooms": 0.0,
+        "Age_Years": 0.0,
+        "Distance_to_Center_km": 0.002083333333333333,
+        "Neighborhood_Score": 0.0029166666666666646,
+        "Has_Parking": 0.0,
+        "Property_Condition": 0.0,
+        "City_Zone": 0.0
+      },
+      "missingness_alerts": [],
+      "data_alert": false,
+      "performance_alert": false,
+      "action": "Continue serving and monitoring"
+    },
+    {
+      "batch": 2,
+      "rows": 500,
+      "model_version": 1,
+      "mae": 6.866566157885691,
+      "rmse": 9.103234907019136,
+      "mae_ratio": 1.1958517982030126,
+      "feature_statistics": {
+        "Area_sqft": {
+          "method": "KS D",
+          "value": 0.1215,
+          "threshold": 0.1
+        },
+        "Bedrooms": {
+          "method": "KS D",
+          "value": 0.0795,
+          "threshold": 0.1
+        },
+        "Bathrooms": {
+          "method": "KS D",
+          "value": 0.06158333333333333,
+          "threshold": 0.1
+        },
+        "Age_Years": {
+          "method": "KS D",
+          "value": 0.025607638888888888,
+          "threshold": 0.1
+        },
+        "Distance_to_Center_km": {
+          "method": "KS D",
+          "value": 0.04070066695664782,
+          "threshold": 0.1
+        },
+        "Neighborhood_Score": {
+          "method": "KS D",
+          "value": 0.03586019760565412,
+          "threshold": 0.1
+        },
+        "Has_Parking": {
+          "method": "KS D",
+          "value": 0.007666666666666666,
+          "threshold": 0.1
+        },
+        "Property_Condition": {
+          "method": "total variation",
+          "value": 0.07125,
+          "threshold": 0.1
+        },
+        "City_Zone": {
+          "method": "total variation",
+          "value": 0.07166666666666668,
+          "threshold": 0.1
+        }
+      },
+      "drifted_features": [
+        "Area_sqft"
+      ],
+      "missingness_deltas": {
+        "Area_sqft": 0.0,
+        "Bedrooms": 0.0,
+        "Bathrooms": 0.0,
+        "Age_Years": 0.0,
+        "Distance_to_Center_km": 0.002083333333333333,
+        "Neighborhood_Score": 0.0029166666666666646,
+        "Has_Parking": 0.0,
+        "Property_Condition": 0.0,
+        "City_Zone": 0.0
+      },
+      "missingness_alerts": [],
+      "data_alert": true,
+      "performance_alert": false,
+      "action": "Investigate; enqueue retraining candidate through all gates; retain current model"
+    },
+    {
+      "batch": 3,
+      "rows": 500,
+      "model_version": 1,
+      "mae": 13.112516396722432,
+      "rmse": 16.085203367338355,
+      "mae_ratio": 2.2836197819166264,
+      "feature_statistics": {
+        "Area_sqft": {
+          "method": "KS D",
+          "value": 0.2555,
+          "threshold": 0.1
+        },
+        "Bedrooms": {
+          "method": "KS D",
+          "value": 0.1835,
+          "threshold": 0.1
+        },
+        "Bathrooms": {
+          "method": "KS D",
+          "value": 0.15383333333333332,
+          "threshold": 0.1
+        },
+        "Age_Years": {
+          "method": "KS D",
+          "value": 0.02048611111111111,
+          "threshold": 0.1
+        },
+        "Distance_to_Center_km": {
+          "method": "KS D",
+          "value": 0.045187219080759754,
+          "threshold": 0.1
+        },
+        "Neighborhood_Score": {
+          "method": "KS D",
+          "value": 0.055833513630463,
+          "threshold": 0.1
+        },
+        "Has_Parking": {
+          "method": "KS D",
+          "value": 0.027666666666666666,
+          "threshold": 0.1
+        },
+        "Property_Condition": {
+          "method": "total variation",
+          "value": 0.056250000000000015,
+          "threshold": 0.1
+        },
+        "City_Zone": {
+          "method": "total variation",
+          "value": 0.18541666666666667,
+          "threshold": 0.1
+        }
+      },
+      "drifted_features": [
+        "Area_sqft",
+        "Bedrooms",
+        "Bathrooms",
+        "City_Zone"
+      ],
+      "missingness_deltas": {
+        "Area_sqft": 0.0,
+        "Bedrooms": 0.0,
+        "Bathrooms": 0.0,
+        "Age_Years": 0.0,
+        "Distance_to_Center_km": 0.002083333333333333,
+        "Neighborhood_Score": 0.0029166666666666646,
+        "Has_Parking": 0.0,
+        "Property_Condition": 0.0,
+        "City_Zone": 0.0
+      },
+      "missingness_alerts": [],
+      "data_alert": true,
+      "performance_alert": true,
+      "action": "Investigate; enqueue retraining candidate through all gates; retain current model"
+    }
+  ]
+}

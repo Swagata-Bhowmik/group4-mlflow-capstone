@@ -1,0 +1,8 @@
+{
+  "method": "Fresh directory copy; same existing interpreter/dependencies. Not a fresh clone or clean dependency installation.",
+  "passed": true,
+  "expected_mae": 5.741987567526319,
+  "actual_mae": 5.741987567526319,
+  "absolute_difference": 0.0,
+  "tolerance": 1e-06
+}

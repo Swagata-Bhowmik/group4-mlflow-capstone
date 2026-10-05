@@ -1,0 +1,53 @@
+# HELP prediction_requests_total Prediction HTTP requests
+# TYPE prediction_requests_total counter
+prediction_requests_total{status="200"} 104.0
+prediction_requests_total{status="422"} 1.0
+# HELP prediction_requests_created Prediction HTTP requests
+# TYPE prediction_requests_created gauge
+prediction_requests_created{status="200"} 1.791180322998825e+09
+prediction_requests_created{status="422"} 1.791180325160684e+09
+# HELP prediction_latency_seconds Prediction request latency
+# TYPE prediction_latency_seconds histogram
+prediction_latency_seconds_bucket{le="0.005"} 105.0
+prediction_latency_seconds_bucket{le="0.01"} 105.0
+prediction_latency_seconds_bucket{le="0.025"} 105.0
+prediction_latency_seconds_bucket{le="0.05"} 105.0
+prediction_latency_seconds_bucket{le="0.1"} 105.0
+prediction_latency_seconds_bucket{le="0.2"} 105.0
+prediction_latency_seconds_bucket{le="0.5"} 105.0
+prediction_latency_seconds_bucket{le="1.0"} 105.0
+prediction_latency_seconds_bucket{le="5.0"} 105.0
+prediction_latency_seconds_bucket{le="+Inf"} 105.0
+prediction_latency_seconds_count 105.0
+prediction_latency_seconds_sum 0.30703600497508887
+# HELP prediction_latency_seconds_created Prediction request latency
+# TYPE prediction_latency_seconds_created gauge
+prediction_latency_seconds_created 1.7911803229783628e+09
+# HELP predicted_price_lakhs Distribution of predicted asking prices
+# TYPE predicted_price_lakhs histogram
+predicted_price_lakhs_bucket{le="10.0"} 0.0
+predicted_price_lakhs_bucket{le="25.0"} 104.0
+predicted_price_lakhs_bucket{le="50.0"} 104.0
+predicted_price_lakhs_bucket{le="75.0"} 104.0
+predicted_price_lakhs_bucket{le="100.0"} 104.0
+predicted_price_lakhs_bucket{le="150.0"} 104.0
+predicted_price_lakhs_bucket{le="250.0"} 104.0
+predicted_price_lakhs_bucket{le="500.0"} 104.0
+predicted_price_lakhs_bucket{le="+Inf"} 104.0
+predicted_price_lakhs_count 104.0
+predicted_price_lakhs_sum 2125.8845297269513
+# HELP predicted_price_lakhs_created Distribution of predicted asking prices
+# TYPE predicted_price_lakhs_created gauge
+predicted_price_lakhs_created 1.791180322978386e+09
+# HELP model_reload_failures_total Failed candidate loads; last healthy model retained
+# TYPE model_reload_failures_total counter
+model_reload_failures_total 0.0
+# HELP model_reload_failures_created Failed candidate loads; last healthy model retained
+# TYPE model_reload_failures_created gauge
+model_reload_failures_created 1.791180322978396e+09
+# HELP model_age_days Age of serving model
+# TYPE model_age_days gauge
+model_age_days 2.5790185185185185e-05
+# HELP serving_model_info Currently loaded version
+# TYPE serving_model_info gauge
+serving_model_info{version="1"} 1.0

@@ -1,0 +1,7 @@
+{
+  "model_version": 1,
+  "rows": 800,
+  "purpose": "One-time final historical test; not used for selection",
+  "mae": 5.775178637019878,
+  "rmse": 7.506462726439909
+}

@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-05T06:05:24.809993+00:00",
+  "from": 2,
+  "to": 1,
+  "status": "PASSED",
+  "endpoint_status": 200,
+  "restored_prediction": {
+    "model_version": 1,
+    "price_lakhs": [
+      20.441197401220663
+    ]
+  },
+  "transport": "in-process HTTP"
+}

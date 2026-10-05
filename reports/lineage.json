@@ -1,0 +1,180 @@
+{
+  "version": 1,
+  "mlflow_run_id": "e956f36b75c640a5b5dbdcdb9f4f3e0c",
+  "source": {
+    "sha256": "3e2414bde8758476be9117b8389a6d1cee60f781720e525ef7fa11eca428524a",
+    "files": {
+      "capstone/__init__.py": "97ff6a127b7342fd45d680c307c43527930698574e3eec01ae3f2adcb0d2c0dc",
+      "capstone/__main__.py": "ea4adaffe840c315ab074c09a1e10ffd29e39c5ae49dba8dffeb0f7ae9b9ef99",
+      "capstone/api.py": "4256c1b9093f6ce5e253ab7e5343edb5caf6caa8a6e53d48860e472479f74734",
+      "capstone/config.py": "374650af99cb6c4d7d6737a82813d9f6cd1de6b3e99907e017f4e0b79e437e75",
+      "capstone/core.py": "ba19f7978ec80d3c19d68f4ad07a4e01db3a12bc1ed1937e21597213a6e6dcb3",
+      "capstone/demo.py": "29d19fe24728e1a0edf14f07ec70f0c027b585cb94a351a74d10cbdb410a8834",
+      "capstone/monitoring.py": "2635a1696a888f01ccd4806504468326c12b0a4d059157c798696a0b9c63f521",
+      "requirements.txt": "7789ef2a4dbb7ca88d5cd9b84e9ef5a5f28208f19ba16656dfe28e94d462e09f"
+    },
+    "commit": "uncommitted-local-source"
+  },
+  "data": {
+    "source": "/Users/krishsoni/Documents/swagata/ml-ops/capstone_house_prices_train.csv",
+    "sha256": "8696565fd2a80775efee9574463c81877a23cbf51314a72e5919c81936036a3c",
+    "bytes": 204843
+  },
+  "configuration": {
+    "project": "group4-house-prices",
+    "paths": {
+      "training": "capstone_house_prices_train.csv",
+      "incoming": "capstone_incoming_batches.csv",
+      "state": "state",
+      "reports": "reports"
+    },
+    "seed": 42,
+    "split": {
+      "test": 0.2,
+      "validation": 0.2
+    },
+    "features": {
+      "numeric": [
+        "Area_sqft",
+        "Bedrooms",
+        "Bathrooms",
+        "Age_Years",
+        "Distance_to_Center_km",
+        "Neighborhood_Score",
+        "Has_Parking"
+      ],
+      "categorical": [
+        "Property_Condition",
+        "City_Zone"
+      ],
+      "target": "Price_Lakhs",
+      "identifier": "House_ID"
+    },
+    "schema": {
+      "missing_allowed": [
+        "Age_Years",
+        "Distance_to_Center_km",
+        "Neighborhood_Score"
+      ],
+      "max_missing_fraction": 0.08,
+      "min_rows": 100,
+      "ranges": {
+        "Area_sqft": [
+          100.0,
+          10000.0
+        ],
+        "Bedrooms": [
+          1.0,
+          20.0
+        ],
+        "Bathrooms": [
+          1.0,
+          20.0
+        ],
+        "Age_Years": [
+          0.0,
+          150.0
+        ],
+        "Distance_to_Center_km": [
+          0.0,
+          200.0
+        ],
+        "Neighborhood_Score": [
+          1.0,
+          10.0
+        ],
+        "Has_Parking": [
+          0.0,
+          1.0
+        ],
+        "Price_Lakhs": [
+          0.01,
+          10000.0
+        ]
+      },
+      "integers": [
+        "Area_sqft",
+        "Bedrooms",
+        "Bathrooms",
+        "Age_Years",
+        "Has_Parking"
+      ],
+      "categories": {
+        "Property_Condition": [
+          "Poor",
+          "Fair",
+          "Good",
+          "Excellent"
+        ],
+        "City_Zone": [
+          "North",
+          "South",
+          "East",
+          "West",
+          "Central"
+        ]
+      }
+    },
+    "model": {
+      "kind": "ridge",
+      "alpha": 10.0,
+      "numeric_imputation": "median",
+      "categorical_imputation": "most_frequent",
+      "unknown_categories": "ignore",
+      "dummy_strategy": "median"
+    },
+    "quality": {
+      "max_mae": 7.0,
+      "max_rmse": 9.0,
+      "max_relative_regression": 0.02,
+      "reproducibility_tolerance": 1e-06
+    },
+    "tracking": {
+      "experiment": "group4-capstone",
+      "registered_model": "house-price-regressor"
+    },
+    "monitoring": {
+      "ks_threshold": 0.1,
+      "categorical_tv_threshold": 0.1,
+      "max_mae": 7.0,
+      "max_mae_ratio": 1.25,
+      "max_missing_delta": 0.03,
+      "max_model_age_days": 30,
+      "p95_latency_seconds": 0.2,
+      "max_error_rate": 0.01,
+      "benchmark_requests": 100,
+      "prediction_buckets": [
+        10.0,
+        25.0,
+        50.0,
+        75.0,
+        100.0,
+        150.0,
+        250.0,
+        500.0
+      ],
+      "latency_buckets": [
+        0.005,
+        0.01,
+        0.025,
+        0.05,
+        0.1,
+        0.2,
+        0.5,
+        1.0,
+        5.0
+      ]
+    },
+    "serving": {
+      "host": "0.0.0.0",
+      "port": 8000,
+      "max_batch_size": 500
+    }
+  },
+  "validation": {
+    "mae": 5.741987567526319,
+    "rmse": 7.522183872653155
+  },
+  "deployed_at": "2026-10-05T06:05:22.933642+00:00",
+  "model_sha256": "d337d2982f84347f9836421f2949ef11ae39e373673d14b4983eae0d907e4456"
+}

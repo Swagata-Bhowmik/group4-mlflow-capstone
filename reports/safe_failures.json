@@ -1,0 +1,44 @@
+{
+  "at": "2026-10-05T06:05:23.092575+00:00",
+  "transport": "FastAPI TestClient, in-process HTTP; not Docker/network uptime proof",
+  "scenarios": [
+    {
+      "scenario": "bad_data",
+      "gate_message": "Age_Years: missing fraction exceeds limit",
+      "status": "PASSED",
+      "endpoint_status": 200,
+      "before": {
+        "model_version": 1,
+        "price_lakhs": [
+          20.441197401220663
+        ]
+      },
+      "after": {
+        "model_version": 1,
+        "price_lakhs": [
+          20.441197401220663
+        ]
+      },
+      "production_manifest_unchanged": true
+    },
+    {
+      "scenario": "bad_model",
+      "gate_message": "Candidate exceeds absolute error thresholds; Candidate regresses against current production",
+      "status": "PASSED",
+      "endpoint_status": 200,
+      "before": {
+        "model_version": 1,
+        "price_lakhs": [
+          20.441197401220663
+        ]
+      },
+      "after": {
+        "model_version": 1,
+        "price_lakhs": [
+          20.441197401220663
+        ]
+      },
+      "production_manifest_unchanged": true
+    }
+  ]
+}

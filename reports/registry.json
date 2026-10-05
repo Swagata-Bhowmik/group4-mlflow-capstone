@@ -1,0 +1,85 @@
+{
+  "experiment_id": "1",
+  "runs": [
+    {
+      "id": "8f32a8bc6e764acd8cbc68c97485a83c",
+      "status": "FINISHED",
+      "metrics": {
+        "mae": 5.741987567526319,
+        "rmse": 7.522183872653155,
+        "champion_mae": 5.741987567526319
+      },
+      "tags": {
+        "code.sha256": "3e2414bde8758476be9117b8389a6d1cee60f781720e525ef7fa11eca428524a",
+        "code.commit": "uncommitted-local-source",
+        "local.run_id": "0a48aebfc71d43a98c457a0a4cebfae9",
+        "mlflow.runName": "likeable-jay-938",
+        "data.sha256": "8696565fd2a80775efee9574463c81877a23cbf51314a72e5919c81936036a3c"
+      }
+    },
+    {
+      "id": "4812fee93330487997535ebe1b4f90ad",
+      "status": "FAILED",
+      "metrics": {
+        "mae": 17.7294375,
+        "rmse": 22.721338041035345,
+        "champion_mae": 5.741987567526319
+      },
+      "tags": {
+        "code.sha256": "3e2414bde8758476be9117b8389a6d1cee60f781720e525ef7fa11eca428524a",
+        "code.commit": "uncommitted-local-source",
+        "local.run_id": "f2595c68e7f54069bc89e25e860c6cdf",
+        "mlflow.runName": "upset-crane-122",
+        "data.sha256": "8696565fd2a80775efee9574463c81877a23cbf51314a72e5919c81936036a3c"
+      }
+    },
+    {
+      "id": "91bdccaaa6504a2da2b491616c3182bd",
+      "status": "FAILED",
+      "metrics": {},
+      "tags": {
+        "code.sha256": "3e2414bde8758476be9117b8389a6d1cee60f781720e525ef7fa11eca428524a",
+        "code.commit": "uncommitted-local-source",
+        "local.run_id": "cc219412e5664147add3ec5db62349d5",
+        "mlflow.runName": "redolent-duck-680",
+        "data.sha256": "58c13db901f659703ec62116f2ede53cdf60ad610a97cb3067351cd8527c50d6"
+      }
+    },
+    {
+      "id": "e956f36b75c640a5b5dbdcdb9f4f3e0c",
+      "status": "FINISHED",
+      "metrics": {
+        "mae": 5.741987567526319,
+        "rmse": 7.522183872653155
+      },
+      "tags": {
+        "code.sha256": "3e2414bde8758476be9117b8389a6d1cee60f781720e525ef7fa11eca428524a",
+        "code.commit": "uncommitted-local-source",
+        "local.run_id": "f3391045399440c79526f1e75438e9a6",
+        "mlflow.runName": "delicate-bird-570",
+        "data.sha256": "8696565fd2a80775efee9574463c81877a23cbf51314a72e5919c81936036a3c"
+      }
+    }
+  ],
+  "versions": [
+    {
+      "version": 2,
+      "run_id": "8f32a8bc6e764acd8cbc68c97485a83c",
+      "status": "READY",
+      "tags": {
+        "lifecycle": "archived"
+      },
+      "source": "models:/m-ca58d66974c241448cb52e82f43f1281"
+    },
+    {
+      "version": 1,
+      "run_id": "e956f36b75c640a5b5dbdcdb9f4f3e0c",
+      "status": "READY",
+      "tags": {
+        "lifecycle": "production"
+      },
+      "source": "models:/m-1dd3feea70344f51ae9ecd64ca5b962a"
+    }
+  ],
+  "champion": 1
+}
