@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: group4-mlflow-capstone
+    runtime: docker
+    plan: free
+    repo: https://github.com/Swagata-Bhowmik/group4-mlflow-capstone
+    branch: main
+    dockerfilePath: ./deploy/render/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
