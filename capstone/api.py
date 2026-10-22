@@ -1,3 +1,4 @@
+import json
 import os
 import threading
 import time
@@ -8,10 +9,11 @@ import joblib
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.responses import FileResponse
 from prometheus_client import CollectorRegistry, Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
 
 from .config import digest, load
-from .core import GateError, production, validate_frame
+from .core import STAGES, GateError, production, read_json, validate_frame
 
 
 def create_app(config_path=None):
@@ -82,4 +84,56 @@ def create_app(config_path=None):
         try: current()
         except HTTPException: pass
         return Response(generate_latest(registry),media_type=CONTENT_TYPE_LATEST)
+
+    # Read-only views for the dashboard. They report recorded evidence; none of them change the model.
+    started=time.time()
+
+    @app.get('/',include_in_schema=False)
+    def dashboard(): return FileResponse(Path(__file__).with_name('static')/'dashboard.html')
+
+    @app.get('/schema')
+    def schema():
+        s=cfg.data_schema
+        return {'numeric':[{'name':c,'range':s.ranges[c],'integer':c in s.integers,'optional':c in s.missing_allowed} for c in cfg.features.numeric],
+                'categorical':[{'name':c,'categories':s.categories[c],'optional':c in s.missing_allowed} for c in cfg.features.categorical],
+                'max_batch_size':cfg.serving.max_batch_size,'quality':cfg.quality.model_dump(),'monitoring':cfg.monitoring.model_dump()}
+
+    def run_file(name):
+        _,manifest=current(); path=Path(manifest['run_directory'])/name
+        if not path.exists(): raise HTTPException(404,f'{name} was not recorded for the serving model')
+        return read_json(path)
+
+    @app.get('/pipeline')
+    def pipeline_run():
+        meta=run_file('run.json')
+        return {'run_id':meta['id'],'mlflow_run_id':meta['mlflow_run_id'],'created':meta['created'],'status':meta['status'],'stages':STAGES,
+                'results':{k:{'status':v['status'],'seconds':v['seconds'],'at':v['at'],'error':v.get('error')} for k,v in meta['stages'].items()},
+                'evaluation':run_file('evaluation.json')}
+
+    @app.get('/monitoring')
+    def monitoring(): return run_file('monitoring.json')
+
+    @app.get('/samples')
+    def samples(batch:int, n:int=5):
+        if batch not in (1,2,3) or not 1<=n<=20: raise HTTPException(422,'Choose batch 1-3 and 1-20 rows')
+        df=pd.read_csv(cfg.paths.incoming); df=df[df.Batch==batch].sample(n)
+        # to_json turns NaN into null, which /predict accepts for nullable columns.
+        records=json.loads(df[cfg.features.all].to_json(orient='records'))
+        return {'batch':batch,'house_ids':df[cfg.features.identifier].tolist(),'records':records,'actual_price_lakhs':df[cfg.features.target].tolist()}
+
+    @app.get('/stats')
+    def stats():
+        def buckets(name):
+            rows=[(float(s.labels['le']) if s.labels['le']!='+Inf' else None,s.value) for m in registry.collect() if m.name==name for s in m.samples if s.name==name+'_bucket']
+            return [{'le':le,'count':c-prev} for (le,c),prev in zip(rows,[0]+[c for _,c in rows[:-1]])]
+        by_status={s.labels['status']:s.value for m in registry.collect() if m.name=='prediction_requests' for s in m.samples if s.name=='prediction_requests_total'}
+        total=sum(by_status.values()); seconds=registry.get_sample_value('prediction_latency_seconds_sum') or 0
+        lat=buckets('prediction_latency_seconds'); p95=None; seen=0
+        for b in lat:
+            seen+=b['count']
+            if total and seen>=0.95*total: p95=b['le']; break
+        uptime=time.time()-started
+        return {'uptime_seconds':uptime,'requests':total,'by_status':by_status,'errors':sum(v for k,v in by_status.items() if not k.startswith('2')),
+                'requests_per_minute':total/uptime*60,'mean_latency_seconds':seconds/total if total else None,'p95_latency_bucket_seconds':p95,
+                'latency_buckets':lat,'predicted_price_buckets':buckets('predicted_price_lakhs'),'reload_failures':registry.get_sample_value('model_reload_failures_total')}
     return app

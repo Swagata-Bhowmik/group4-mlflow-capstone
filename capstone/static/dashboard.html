@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>House Price MLOps</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236250d6'/%3E%3Cpath d='M8 16l8-7 8 7v8h-5v-5h-6v5H8z' fill='white'/%3E%3C/svg%3E">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f3f4fa;--surface:#ffffff;--surface-2:#f4f5f9;--border:#e3e5ee;
+  --text:#14141f;--text-2:#4f5163;--muted:#80829a;
+  --hero-1:#4b3fc4;--hero-2:#2a78d6;--hero-3:#16a57a;
+  /* Tab / section accents */
+  --c-overview:#6250d6;--c-predict:#2a78d6;--c-listings:#1baf7a;--c-pipeline:#8e44c9;
+  --c-monitor:#eb6834;--c-ops:#0f9b8e;--c-lineage:#d6457f;
+  /* Categorical batch identity (validated reference palette, slots 1-3) */
+  --b1:#2a78d6;--b2:#eb6834;--b3:#1baf7a;
+  --good:#0ca30c;--warning:#fab219;--critical:#d03b3b;
+  --good-ink:#0b7a0b;--warning-ink:#8a5a00;--critical-ink:#b02a2a;
+  --good-bg:#e7f6e7;--warning-bg:#fff4dc;--critical-bg:#fde9e9;
+  --seq-0:#e6f0fc;--seq-1:#9ec5f4;--seq-2:#5598e7;--seq-3:#256abf;--seq-4:#0d366b;
+  --shadow:0 1px 2px rgba(20,20,40,.05),0 6px 20px rgba(20,20,40,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#101018;--surface:#191924;--surface-2:#22222f;--border:#2f2f3e;
+  --text:#f0f0f5;--text-2:#c4c5d4;--muted:#8d8fa6;
+  --hero-1:#3a2f9e;--hero-2:#1c5cab;--hero-3:#0f7a5a;
+  --c-overview:#9085e9;--c-predict:#3987e5;--c-listings:#22c08a;--c-pipeline:#b178e6;
+  --c-monitor:#f0814f;--c-ops:#2bbfae;--c-lineage:#ea6b9b;
+  --b1:#3987e5;--b2:#d95926;--b3:#199e70;
+  --good-ink:#5fd35f;--warning-ink:#fab219;--critical-ink:#f07a7a;
+  --good-bg:#16301a;--warning-bg:#33290f;--critical-bg:#3a1a1a;
+  --seq-0:#1d2a3b;--seq-1:#184f95;--seq-2:#2a78d6;--seq-3:#6da7ec;--seq-4:#cde2fb;
+  --shadow:none;
+}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+a{color:var(--c-predict)}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+
+/* ---------- Header ---------- */
+.hero{background:linear-gradient(110deg,var(--hero-1) 0%,var(--hero-2) 55%,var(--hero-3) 100%);color:#fff;flex:none}
+.hero-in{max-width:1400px;margin:auto;padding:12px 20px 0;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.logo{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.18);display:grid;place-items:center;flex:none}
+.brand{font-weight:700;font-size:17px;line-height:1.2}
+.brand small{display:block;font-weight:400;opacity:.85;font-size:12px}
+.live{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.16);font-size:12.5px;font-weight:600;white-space:nowrap}
+.live .dot{width:8px;height:8px;border-radius:50%;background:#cfd2e0}
+.live .dot.good{background:#5df05d;box-shadow:0 0 0 4px rgba(93,240,93,.25)}
+.live .dot.critical{background:#ff7b7b}
+.tabs{max-width:1400px;margin:auto;padding:10px 20px 0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{--c:#fff;appearance:none;border:0;background:transparent;color:rgba(255,255,255,.82);font:inherit;font-weight:600;padding:9px 14px 11px;border-radius:10px 10px 0 0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.tab:hover{background:rgba(255,255,255,.12);color:#fff}
+.tab .ic{width:9px;height:9px;border-radius:3px;background:var(--c);box-shadow:0 0 0 2px rgba(255,255,255,.55)}
+.tab[aria-selected="true"]{background:var(--bg);color:var(--text)}
+.tab[aria-selected="true"] .ic{box-shadow:none}
+.tab:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+
+/* ---------- Panels ---------- */
+.stage-wrap{flex:1;min-height:0;overflow:auto}
+.panel{max-width:1400px;margin:auto;padding:18px 20px 24px;display:none;--c:var(--c-overview)}
+.panel.active{display:block;animation:fade .18s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.ph{display:flex;align-items:flex-end;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.ph h1{font-size:22px;margin:0;line-height:1.2;letter-spacing:-.01em}
+.ph h1::before{content:"";display:inline-block;width:6px;height:20px;border-radius:3px;background:var(--c);margin-right:10px;vertical-align:-3px}
+.ph p{margin:0;color:var(--text-2);max-width:760px;flex:1 1 380px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(360px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g-52{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+.tiles{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+@media (max-width:900px){.g-52{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow);min-width:0}
+.card h3{font-size:13px;margin:0 0 10px;color:var(--text-2);font-weight:650;display:flex;align-items:center;gap:8px}
+.card h3 .tag{margin-left:auto}
+.accent-top{border-top:4px solid var(--c)}
+
+/* KPI tiles */
+.tile{position:relative;overflow:hidden;border:0;color:#fff;background:linear-gradient(135deg,var(--t1),var(--t2))}
+.tile .label{font-size:12px;opacity:.9;font-weight:600}
+.tile .value{font-size:26px;font-weight:750;margin-top:4px;font-variant-numeric:tabular-nums;line-height:1.15;overflow-wrap:anywhere}
+.tile .sub{font-size:12px;opacity:.88;margin-top:2px}
+.tile::after{content:"";position:absolute;right:-26px;top:-26px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.12)}
+.t-a{--t1:#6250d6;--t2:#8b7cf0}.t-b{--t1:#2a78d6;--t2:#5aa2f0}.t-c{--t1:#0f9b8e;--t2:#3cc7b5}.t-d{--t1:#d6457f;--t2:#f07aa6}.t-e{--t1:#eb6834;--t2:#f5a05a}
+.soft{background:var(--surface);color:var(--text);border:1px solid var(--border);border-left:5px solid var(--c)}
+.soft .label{color:var(--text-2);opacity:1}.soft .sub{color:var(--muted);opacity:1}.soft::after{display:none}
+
+/* Controls */
+.form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px}
+@media (max-width:640px){.form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+label{display:block;font-size:12px;color:var(--text-2);margin-bottom:3px;font-weight:600}
+input,select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2);color:var(--text);font:inherit}
+input:focus,select:focus{outline:2px solid var(--c);outline-offset:1px;background:var(--surface)}
+.hint{font-size:11px;color:var(--muted)}
+button{font:inherit;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:9px;padding:7px 13px;cursor:pointer;font-weight:550}
+button:hover{border-color:var(--c)}
+.btn{background:var(--c);border-color:var(--c);color:#fff;font-weight:650;padding:9px 18px;box-shadow:0 4px 12px color-mix(in srgb,var(--c) 35%,transparent)}
+.btn:hover{filter:brightness(1.07)}
+button:disabled{opacity:.6;cursor:wait}
+.chip{border-radius:999px;padding:5px 12px;font-size:12.5px}
+.chip.bad{color:var(--critical-ink);border-color:color-mix(in srgb,var(--critical) 45%,transparent)}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:11px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;border-radius:8px;display:inline-flex;align-items:center;gap:7px}
+.seg button.on{background:var(--surface);box-shadow:var(--shadow);font-weight:700}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;flex:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* Prediction result */
+.price-card{border-radius:14px;padding:20px;color:#fff;background:linear-gradient(135deg,#2a78d6,#6250d6);min-height:150px;display:flex;flex-direction:column;justify-content:center}
+.price-card.idle{background:var(--surface-2);color:var(--muted)}
+.price-card.bad{background:linear-gradient(135deg,#c03535,#e0663f)}
+.price{font-size:44px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.1}
+.range{margin-top:12px;height:8px;border-radius:4px;background:rgba(255,255,255,.25);position:relative}
+.range i{position:absolute;top:0;bottom:0;border-radius:4px;background:rgba(255,255,255,.75)}
+details summary{cursor:pointer;color:var(--text-2);font-size:12.5px;font-weight:600}
+pre{margin:8px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text-2);background:var(--surface-2);padding:10px;border-radius:9px;max-height:180px;overflow:auto}
+
+/* Status badges: always icon + label */
+.status{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.status.good{color:var(--good-ink);background:var(--good-bg)}
+.status.warning{color:var(--warning-ink);background:var(--warning-bg)}
+.status.critical{color:var(--critical-ink);background:var(--critical-bg)}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 9px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--text-2);font-weight:650;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em}
+tbody tr:hover{background:var(--surface-2)}
+.scroll{overflow:auto}
+
+/* Pipeline flow */
+.flow{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;counter-reset:s}
+@media (max-width:1000px){.flow{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.st{position:relative;border-radius:12px;padding:12px 10px;background:var(--surface-2);text-align:center;border:2px solid transparent}
+.st .num{width:30px;height:30px;border-radius:50%;margin:0 auto 6px;display:grid;place-items:center;color:#fff;font-weight:750;background:var(--sc)}
+.st .t{font-weight:700;text-transform:capitalize}
+.st .s{font-size:11.5px;color:var(--muted)}
+.st.gate{border-color:var(--sc);border-style:dashed}
+.st .gl{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:750;color:#fff;background:var(--sc);padding:1px 7px;border-radius:999px;white-space:nowrap}
+.st.fail{background:var(--critical-bg)}
+.flow-mini{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.flow-mini span{text-align:center;font-size:12px;font-weight:650;padding:7px 4px;border-radius:9px;color:#fff;background:var(--sc);text-transform:capitalize}
+
+/* Batch cards */
+.bcard{border-top:4px solid var(--bc)}
+.bnum{font-size:27px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.meter{height:8px;border-radius:4px;background:var(--surface-2);margin:10px 0 4px;position:relative;overflow:visible}
+.meter i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--bc)}
+.meter b{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--critical)}
+
+.kv{display:grid;grid-template-columns:minmax(120px,170px) 1fr;gap:6px 14px;font-size:12.5px}
+.kv>div:nth-child(odd){color:var(--text-2)}
+.kv>div:nth-child(even){overflow-wrap:anywhere}
+
+/* Heatmap */
+.heat td{text-align:center;padding:3px 6px}
+.heat td:first-child{text-align:left}
+.heat td.cell{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;border-radius:6px;border:2px solid var(--surface)}
+.heat td.over{font-weight:800;box-shadow:inset 0 0 0 2px var(--critical)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--text-2);margin-top:8px;align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+
+/* Lineage chain */
+.chain{display:grid;gap:0}
+.link{display:grid;grid-template-columns:44px 1fr;gap:12px;position:relative;padding-bottom:12px}
+.link:not(:last-child)::before{content:"";position:absolute;left:21px;top:40px;bottom:0;width:2px;background:var(--border)}
+.link .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px;background:var(--lc)}
+.link .lt{font-weight:700}
+.link .lv{color:var(--text-2);overflow-wrap:anywhere}
+
+svg text{fill:var(--text-2);font-size:11px}
+svg .grid line{stroke:var(--border)}
+svg .val{fill:var(--text);font-weight:700}
+.tip{position:fixed;pointer-events:none;background:var(--text);color:var(--bg);padding:6px 9px;border-radius:7px;font-size:12px;opacity:0;transition:opacity .1s;z-index:20;max-width:280px}
+.loading{color:var(--muted);font-style:italic}
+.note{border-radius:12px;padding:12px 14px;background:color-mix(in srgb,var(--c) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 30%,transparent);font-size:13px}
+.error-box{border-left:4px solid var(--critical);padding:12px 14px;background:var(--critical-bg);border-radius:8px}
+.foot{flex:none;text-align:center;font-size:11px;color:var(--muted);padding:6px 12px;border-top:1px solid var(--border);background:var(--surface)}
+@media (max-width:640px){.kv{grid-template-columns:1fr}.price{font-size:34px}.live{margin-left:0}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 16l11-9 11 9v11h-7v-7h-8v7H5z" fill="#fff"/></svg></div>
+    <div class="brand">Group 4 · House Price MLOps<small>Swagata Bhowmik (B053) · Sumit Kothari (B062) · Project 4 Capstone</small></div>
+    <span class="live" id="health"><span class="dot"></span><span>Connecting…</span></span>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Dashboard sections" id="tabs"></nav>
+</header>
+
+<div class="stage-wrap">
+<!-- OVERVIEW -->
+<section class="panel" id="p-overview" role="tabpanel" style="--c:var(--c-overview)">
+  <div class="ph"><h1>From raw listings to a monitored model</h1><p>An automated eight-stage pipeline validates the data, trains and gates a model, registers it in MLflow and deploys it here. If a gate fails, the previous model keeps serving.</p></div>
+  <div class="grid tiles" id="tiles"><div class="card loading">Waking the server — the free host can take up to a minute after being idle…</div></div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Pipeline behind this model <span class="tag" id="ovRun"></span></h3><div class="flow-mini" id="ovFlow"><span class="loading" style="background:none;color:var(--muted)">Loading…</span></div>
+      <p class="hint" style="margin:10px 0 0">ingest → validate (data gate) → features → train → evaluate (model gate) → register → deploy → monitor</p></div>
+    <div class="card"><h3>Incoming batches</h3><div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:10px" id="ovBatches"><span class="loading">Loading…</span></div></div>
+  </div>
+  <div class="grid g3" style="margin-top:14px">
+    <button class="card" style="text-align:left;--c:var(--c-predict)" data-go="predict"><h3><span class="sw" style="background:var(--c-predict)"></span>Predict a price</h3><span class="hint">Enter a listing and get an instant estimate; try an invalid one to see the data checks.</span></button>
+    <button class="card" style="text-align:left;--c:var(--c-listings)" data-go="listings"><h3><span class="sw" style="background:var(--c-listings)"></span>Test on real listings</h3><span class="hint">Compare predictions with real prices from batches 1–3.</span></button>
+    <button class="card" style="text-align:left;--c:var(--c-lineage)" data-go="lineage"><h3><span class="sw" style="background:var(--c-lineage)"></span>Trace lineage</h3><span class="hint">Follow the deployed model back to its code, data and run.</span></button>
+  </div>
+</section>
+
+<!-- PREDICT -->
+<section class="panel" id="p-predict" role="tabpanel" style="--c:var(--c-predict)">
+  <div class="ph"><h1>Predict an asking price</h1><p>Choose a preset or fill in a listing. <code>POST /predict</code> runs the same data checks as the pipeline before the model is used.</p></div>
+  <div class="grid g-52">
+    <div class="card accent-top">
+      <div class="row" id="presets" style="margin-bottom:12px"></div>
+      <div class="form" id="form"></div>
+      <div class="row" style="margin-top:14px"><button class="btn" id="predictBtn">Predict price</button><span class="hint">Blank optional fields are sent as missing values.</span></div>
+    </div>
+    <div class="grid" style="align-content:start">
+      <div class="price-card idle" id="result"><div>Submit a listing to see the prediction.</div></div>
+      <div class="card"><details><summary>Request sent to the API</summary><pre class="mono" id="sent">—</pre></details></div>
+    </div>
+  </div>
+</section>
+
+<!-- LISTINGS -->
+<section class="panel" id="p-listings" role="tabpanel" style="--c:var(--c-listings)">
+  <div class="ph"><h1>Real listings from the incoming batches</h1><p>Draw random listings from a batch, send them to the live model and compare with the real prices. Batch 3 differs most from the training data.</p></div>
+  <div class="card" style="margin-bottom:14px"><div class="row"><div class="seg" id="batchBtns"></div><button class="btn" id="sampleBtn">Draw 8 listings &amp; predict</button><span id="sampleSummary" class="hint"></span></div></div>
+  <div class="grid g-52">
+    <div class="card"><h3>Predicted vs actual</h3><div class="scroll"><table id="sampleTable"><thead><tr><th>Listing</th><th>Area</th><th>Beds</th><th>Zone</th><th>Condition</th><th>Actual ₹L</th><th>Predicted ₹L</th><th>Error ₹L</th></tr></thead><tbody><tr><td colspan="8" class="loading" style="text-align:left">No listings drawn yet.</td></tr></tbody></table></div></div>
+    <div class="card"><h3>Each dot is one listing <span class="tag hint">on the line = perfect prediction</span></h3><div id="scatter"><p class="loading">Draw listings to plot them.</p></div><div class="legend" id="scatterLegend"></div></div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section class="panel" id="p-pipeline" role="tabpanel" style="--c:var(--c-pipeline)">
+  <div class="ph"><h1>Pipeline run behind the serving model</h1><p>The workflow graph recorded for the run that produced this model. Dashed stages are quality gates: a failure there stops the run and leaves production unchanged.</p></div>
+  <div class="card"><div class="flow" id="flow"><span class="loading">Loading…</span></div></div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Model gate</h3><div id="gate" class="loading">Loading…</div></div>
+    <div class="card"><h3>Run record</h3><div id="runinfo" class="loading">Loading…</div></div>
+  </div>
+  <div class="note" style="margin-top:14px"><b>Safe failure:</b> each stage records its inputs, outputs and hashes. Bad data stops at <b>validate</b>; a weak model, or one worse than the serving model, stops at <b>evaluate</b>. Neither reaches <b>deploy</b>, so this server keeps the previous model.</div>
+</section>
+
+<!-- MONITORING -->
+<section class="panel" id="p-monitoring" role="tabpanel" style="--c:var(--c-monitor)">
+  <div class="ph"><h1>Monitoring the three incoming batches</h1><p id="monLede">Each batch is compared with the training data (data drift) and scored against its real prices (performance drift).</p></div>
+  <div class="grid g3" id="batchCards"><div class="card loading">Loading…</div></div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Prediction error by batch (MAE, ₹ lakhs)</h3><div id="maeChart"></div><div class="legend" id="maeLegend"></div></div>
+    <div class="card"><h3>Input drift by feature</h3><div class="scroll"><table class="heat" id="heat"></table></div><div class="legend" id="heatLegend"></div></div>
+  </div>
+  <div class="note" style="margin-top:14px"><b>When an alert fires:</b> nothing is replaced automatically. The current model keeps serving while the team investigates and starts a new pipeline run. A retrained candidate goes live only if it passes the data gate, the error limits and the comparison with the serving model.</div>
+</section>
+
+<!-- OPERATIONS -->
+<section class="panel" id="p-operations" role="tabpanel" style="--c:var(--c-ops)">
+  <div class="ph"><h1>Live service metrics</h1><p>Counters since this server process started, from <code>/stats</code> — the same values Prometheus scrapes from <code>/metrics</code>. Refreshes every 10 s; restarts on the free host reset them.</p></div>
+  <div class="grid tiles" id="opTiles"></div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Distribution of predicted prices (₹ lakhs)</h3><div id="priceChart"></div></div>
+    <div class="card"><h3>Request latency</h3><div id="latChart"></div></div>
+  </div>
+</section>
+
+<!-- LINEAGE -->
+<section class="panel" id="p-lineage" role="tabpanel" style="--c:var(--c-lineage)">
+  <div class="ph"><h1>Lineage of the serving model</h1><p>Start from the deployed model and trace the exact code, data, configuration and MLflow run that produced it.</p></div>
+  <div class="grid g2">
+    <div class="card"><h3>Trace</h3><div class="chain" id="chain"><span class="loading">Loading…</span></div></div>
+    <div class="card"><h3>Full record</h3><div class="kv" id="kv"><div class="loading">Loading…</div><div></div></div>
+      <div class="row" style="margin-top:14px"><a href="/lineage" target="_blank">Raw /lineage JSON</a>·<a href="/docs" target="_blank">API docs</a>·<a href="/metrics" target="_blank">Prometheus /metrics</a></div></div>
+  </div>
+</section>
+</div>
+<div class="foot">Elective II: MLOps · Dr. Santosh Kumar · Free-hosted public demo: no authentication; model state is rebuilt with each deployment.</div>
+<div class="tip" id="tip"></div>
+
+<script>
+const REPO='https://github.com/Swagata-Bhowmik/group4-mlflow-capstone';
+const $=s=>document.querySelector(s);
+const el=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==='class')e.className=v;else if(k==='text')e.textContent=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}for(const k of kids)if(k!=null)e.append(k);return e};
+const fmt=(x,d=2)=>x==null||Number.isNaN(x)?'—':Number(x).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
+const label=s=>s.replace(/_/g,' ').replace('sqft','(sq ft)').replace('km','(km)');
+async function api(path,opts){const r=await fetch(path,opts);let body;try{body=await r.json()}catch{body=null}if(!r.ok){const d=body&&body.detail;throw new Error(typeof d==='string'?d:JSON.stringify(d||r.statusText))}return body}
+function status(kind,text){const icon={good:'✓',warning:'⚠',critical:'✕'}[kind];return el('span',{class:'status '+kind,text:icon+' '+text})}
+const BATCH_COLOR=['','var(--b1)','var(--b2)','var(--b3)'];
+const STAGE_COLOR=['#6250d6','#d6457f','#2a78d6','#0f9b8e','#eb6834','#8e44c9','#1baf7a','#c98500'];
+
+// ---------- Tabs ----------
+const TABS=[['overview','Overview','var(--c-overview)'],['predict','Predict','var(--c-predict)'],['listings','Real listings','var(--c-listings)'],['pipeline','Pipeline','var(--c-pipeline)'],['monitoring','Monitoring','var(--c-monitor)'],['operations','Operations','var(--c-ops)'],['lineage','Lineage','var(--c-lineage)']];
+function show(id,focus){
+  if(!TABS.some(t=>t[0]===id))id='overview';
+  for(const[t]of TABS){const on=t===id;$('#t-'+t).setAttribute('aria-selected',on);$('#t-'+t).tabIndex=on?0:-1;$('#p-'+t).classList.toggle('active',on)}
+  if(focus)$('#t-'+id).focus();
+  $('.stage-wrap').scrollTop=0;
+  try{history.replaceState(null,'','#'+id)}catch{}
+}
+$('#tabs').append(...TABS.map(([id,name,c],i)=>el('button',{class:'tab',role:'tab',id:'t-'+id,'aria-controls':'p-'+id,style:'--c:'+c,onclick:()=>show(id),
+  onkeydown:e=>{const d={ArrowRight:1,ArrowLeft:-1}[e.key];if(d){e.preventDefault();show(TABS[(i+d+TABS.length)%TABS.length][0],true)}}},el('span',{class:'ic'}),name)));
+for(const[t]of TABS)$('#p-'+t).setAttribute('aria-labelledby','t-'+t);
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.go)));
+show(location.hash.slice(1));
+
+// ---------- Tooltip ----------
+const tip=$('#tip');
+function hover(node,text){node.addEventListener('mousemove',e=>{tip.textContent=text;tip.style.opacity=1;tip.style.left=Math.min(e.clientX+12,innerWidth-290)+'px';tip.style.top=(e.clientY+12)+'px'});node.addEventListener('mouseleave',()=>tip.style.opacity=0)}
+
+// ---------- Charts ----------
+const SVGNS='http://www.w3.org/2000/svg';
+const ns=(t,a)=>{const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+const txt=(a,s)=>{const t=ns('text',a);t.textContent=s;return t};
+function niceStep(raw,integer){const p=10**Math.floor(Math.log10(raw||1));const s=[1,2,2.5,5,10].map(k=>k*p).find(k=>k>=raw);return integer?Math.max(1,Math.ceil(s)):s}
+function barChart(target,bars,{refs=[],unit='',height=210,integer=false,color='var(--c)'}={}){
+  const W=560,H=height,m={t:18,r:refs.length?118:12,b:30,l:40};target.textContent='';
+  const peak=Math.max(...bars.map(b=>b.value),...refs.map(r=>r.value))||1,step=niceStep(peak*1.1/4,integer),top=Math.ceil(peak*1.1/step)*step;
+  const svg=ns('svg',{viewBox:`0 0 ${W} ${H}`,width:'100%',role:'img'});
+  const y=v=>m.t+(H-m.t-m.b)*(1-v/top),bw=(W-m.l-m.r)/bars.length;
+  const g=ns('g',{class:'grid'});for(let v=0;v<=top+1e-9;v+=step){g.append(ns('line',{x1:m.l,x2:W-m.r,y1:y(v),y2:y(v)}));g.append(txt({x:m.l-6,y:y(v)+4,'text-anchor':'end'},Number.isInteger(v)?v:fmt(v,1)))}svg.append(g);
+  bars.forEach((b,i)=>{const x=m.l+i*bw+bw*0.16,w=bw*0.68,h=Math.max(0,y(0)-y(b.value)),r=Math.min(4,w/2,h);
+    if(h>=1)svg.append(ns('path',{d:`M${x},${y(0)}V${y(b.value)+r}Q${x},${y(b.value)} ${x+r},${y(b.value)}H${x+w-r}Q${x+w},${y(b.value)} ${x+w},${y(b.value)+r}V${y(0)}Z`,fill:b.color||color}));
+    const hit=ns('rect',{x:m.l+i*bw,y:m.t,width:bw,height:H-m.t-m.b,fill:'transparent'});hover(hit,b.tip||`${b.label}: ${fmt(b.value)}${unit}`);svg.append(hit);
+    svg.append(txt({x:x+w/2,y:H-m.b+16,'text-anchor':'middle'},b.label));
+    if(b.showValue)svg.append(txt({x:x+w/2,y:y(b.value)-6,'text-anchor':'middle',class:'val'},fmt(b.value)))});
+  // Reference lines are labelled in the right margin, nudged apart so labels never overlap.
+  let lastY=-1e9;[...refs].sort((a,b)=>b.value-a.value).forEach(r=>{svg.append(ns('line',{x1:m.l,x2:W-m.r,y1:y(r.value),y2:y(r.value),stroke:r.color||'var(--text-2)','stroke-width':2,'stroke-dasharray':r.dash||'5 4'}));
+    const ly=Math.max(y(r.value)+4,lastY+14);lastY=ly;svg.append(txt({x:W-m.r+6,y:ly},r.label))});
+  svg.append(ns('line',{x1:m.l,x2:W-m.r,y1:y(0),y2:y(0),stroke:'var(--muted)'}));
+  target.append(svg);
+}
+function scatter(target,pts){
+  const W=420,H=300,m={t:12,r:14,b:38,l:46};target.textContent='';
+  const peak=Math.max(...pts.flatMap(p=>[p.x,p.y]))*1.08,step=niceStep(peak/4),top=Math.ceil(peak/step)*step;
+  const svg=ns('svg',{viewBox:`0 0 ${W} ${H}`,width:'100%',role:'img'});
+  const X=v=>m.l+(W-m.l-m.r)*v/top,Y=v=>m.t+(H-m.t-m.b)*(1-v/top);
+  const g=ns('g',{class:'grid'});for(let v=0;v<=top+1e-9;v+=step){g.append(ns('line',{x1:m.l,x2:W-m.r,y1:Y(v),y2:Y(v)}));g.append(txt({x:m.l-6,y:Y(v)+4,'text-anchor':'end'},v));g.append(txt({x:X(v),y:H-m.b+15,'text-anchor':'middle'},v))}svg.append(g);
+  svg.append(ns('line',{x1:X(0),y1:Y(0),x2:X(top),y2:Y(top),stroke:'var(--muted)','stroke-width':1.5,'stroke-dasharray':'5 4'}));
+  svg.append(txt({x:(W+m.l)/2,y:H-4,'text-anchor':'middle'},'Actual price (₹ lakhs)'));
+  svg.append(txt({x:12,y:(H-m.b)/2,'text-anchor':'middle',transform:`rotate(-90 12 ${(H-m.b)/2})`},'Predicted (₹ lakhs)'));
+  for(const p of pts){const c=ns('circle',{cx:X(p.x),cy:Y(p.y),r:6,fill:p.color,stroke:'var(--surface)','stroke-width':2});svg.append(c);
+    const hit=ns('circle',{cx:X(p.x),cy:Y(p.y),r:12,fill:'transparent'});hover(hit,p.tip);svg.append(hit)}
+  target.append(svg);
+}
+
+let schema,lineage,monitorData;
+
+// ---------- Overview ----------
+async function loadOverview(){
+  try{
+    const[h,l]=await Promise.all([api('/health'),api('/lineage')]);lineage=l;
+    $('#health').replaceChildren(el('span',{class:'dot good'}),el('span',{text:`Live · model v${h.model_version}`}));
+    const commit=l.source.commit||'',isSha=/^[0-9a-f]{40}$/.test(commit),short=isSha?commit.slice(0,7):'local build';
+    const tiles=[
+      ['t-a','Serving model','v'+l.version,'MLflow registry version'],
+      ['t-b','Typical error (MAE)','₹'+fmt(l.validation.mae)+' L','gate limit ₹'+fmt(l.configuration.quality.max_mae,1)+' L'],
+      ['t-c','RMSE','₹'+fmt(l.validation.rmse)+' L','gate limit ₹'+fmt(l.configuration.quality.max_rmse,1)+' L'],
+      ['t-d','Model',l.configuration.model.kind==='ridge'?'Ridge':l.configuration.model.kind,'regression · alpha '+l.configuration.model.alpha],
+      ['t-e','Built from commit',short,isSha?new Date(l.deployed_at).toLocaleString():'not built from a Git commit'],
+    ];
+    $('#tiles').replaceChildren(...tiles.map(([c,a,b,s])=>el('div',{class:'card tile '+c},el('div',{class:'label',text:a}),el('div',{class:'value',text:b}),el('div',{class:'sub',text:s}))));
+    renderLineage(l);
+  }catch(e){
+    $('#health').replaceChildren(el('span',{class:'dot critical'}),el('span',{text:'API unavailable'}));
+    $('#tiles').replaceChildren(el('div',{class:'error-box',text:'Could not reach the model: '+e.message+'. Reload in a minute if the free server is waking up.'}));
+    throw e;
+  }
+}
+
+// ---------- Lineage ----------
+function renderLineage(l){
+  const c=l.source.commit,isSha=/^[0-9a-f]{40}$/.test(c||'');
+  const chain=[
+    ['M','#6250d6','Deployed model',`version ${l.version} · sha256 ${l.model_sha256.slice(0,16)}…`],
+    ['R','#2a78d6','MLflow run',l.mlflow_run_id],
+    ['C','#0f9b8e','Code',isSha?el('a',{href:REPO+'/commit/'+c,target:'_blank',text:'commit '+c.slice(0,7)}):c],
+    ['D','#eb6834','Training data',`${l.data.source.split('/').pop()} · sha256 ${l.data.sha256.slice(0,16)}…`],
+    ['Y','#d6457f','Configuration (YAML)',`seed ${l.configuration.seed} · ${l.configuration.model.kind} α=${l.configuration.model.alpha} · gates MAE ≤ ${l.configuration.quality.max_mae}, RMSE ≤ ${l.configuration.quality.max_rmse}`],
+  ];
+  $('#chain').replaceChildren(...chain.map(([i,c,t,v])=>el('div',{class:'link',style:'--lc:'+c},el('div',{class:'ico',text:i}),el('div',{},el('div',{class:'lt',text:t}),typeof v==='string'?el('div',{class:'lv mono',text:v}):el('div',{class:'lv mono'},v)))));
+  const rows=[
+    ['Model version','v'+l.version],['Model file SHA-256',l.model_sha256],
+    ['Code commit',isSha?el('a',{href:REPO+'/commit/'+c,target:'_blank',text:c}):c],['Code snapshot SHA-256',l.source.sha256],
+    ['MLflow run ID',l.mlflow_run_id],['Training data',`${l.data.source.split('/').pop()} · ${(l.data.bytes/1024).toFixed(0)} KB`],
+    ['Training data SHA-256',l.data.sha256],
+    ['Split',`${l.configuration.split.validation*100}% validation · ${l.configuration.split.test*100}% test · seed ${l.configuration.seed}`],
+    ['Promotion rule',`≤ ${l.configuration.quality.max_relative_regression*100}% worse than the serving model`],
+    ['Deployed at',new Date(l.deployed_at).toLocaleString()],
+  ];
+  $('#kv').replaceChildren(...rows.flatMap(([k,v])=>[el('div',{text:k}),typeof v==='string'?el('div',{class:'mono',text:v}):el('div',{class:'mono'},v)]));
+}
+
+// ---------- Predict ----------
+const PRESETS={
+  'City flat':{Area_sqft:1200,Bedrooms:2,Bathrooms:2,Age_Years:5,Distance_to_Center_km:8,Neighborhood_Score:7,Has_Parking:1,Property_Condition:'Good',City_Zone:'Central'},
+  'Family villa':{Area_sqft:3200,Bedrooms:4,Bathrooms:3,Age_Years:2,Distance_to_Center_km:12,Neighborhood_Score:8.5,Has_Parking:1,Property_Condition:'Excellent',City_Zone:'North'},
+  'Older suburban home':{Area_sqft:900,Bedrooms:2,Bathrooms:1,Age_Years:35,Distance_to_Center_km:22,Neighborhood_Score:4.5,Has_Parking:0,Property_Condition:'Fair',City_Zone:'East'},
+  'Missing details':{Area_sqft:1500,Bedrooms:3,Bathrooms:2,Age_Years:null,Distance_to_Center_km:null,Neighborhood_Score:null,Has_Parking:1,Property_Condition:'Good',City_Zone:'West'},
+  '✕ Invalid: 0 bedrooms':{Area_sqft:1200,Bedrooms:0,Bathrooms:2,Age_Years:5,Distance_to_Center_km:8,Neighborhood_Score:7,Has_Parking:1,Property_Condition:'Good',City_Zone:'South'},
+};
+function buildForm(){
+  const f=$('#form');f.textContent='';
+  for(const c of schema.numeric){
+    const id='f_'+c.name;
+    const input=c.name==='Has_Parking'
+      ? el('select',{id},el('option',{value:'1',text:'Yes'}),el('option',{value:'0',text:'No'}))
+      : el('input',{id,type:'number',step:c.integer?'1':'0.1',min:c.range[0],max:c.range[1],placeholder:c.optional?'optional':''});
+    f.append(el('div',{},el('label',{for:id,text:label(c.name)}),input,el('div',{class:'hint',text:c.name==='Has_Parking'?'parking included?':`${c.range[0]}–${c.range[1]}${c.optional?' · may be blank':''}`})));
+  }
+  for(const c of schema.categorical){
+    const id='f_'+c.name;
+    f.append(el('div',{},el('label',{for:id,text:label(c.name)}),el('select',{id},...c.categories.map(v=>el('option',{value:v,text:v}))),el('div',{class:'hint',text:c.categories.length+' allowed values'})));
+  }
+  $('#presets').replaceChildren(...Object.keys(PRESETS).map(name=>el('button',{class:'chip'+(name.startsWith('✕')?' bad':''),text:name,onclick:()=>{fill(PRESETS[name]);predict()}})));
+  fill(PRESETS['City flat']);
+}
+function fill(r){for(const[k,v]of Object.entries(r)){const e=$('#f_'+k);if(e)e.value=v==null?'':v}}
+function readForm(){
+  const r={};
+  for(const c of schema.numeric){const v=$('#f_'+c.name).value;r[c.name]=v===''?null:Number(v)}
+  for(const c of schema.categorical)r[c.name]=$('#f_'+c.name).value;
+  return r;
+}
+async function predict(){
+  const btn=$('#predictBtn'),box=$('#result');btn.disabled=true;
+  const record=readForm();$('#sent').textContent=JSON.stringify({records:[record]},null,1);
+  box.className='price-card idle';box.replaceChildren(el('div',{text:'Asking the model…'}));
+  const t0=performance.now();
+  try{
+    const r=await api('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({records:[record]})});
+    const ms=performance.now()-t0,p=r.price_lakhs[0],e=lineage?.validation.mae||0;
+    // Band shows the typical error either side of the estimate, on a 0–2× price scale.
+    const lo=Math.max(0,p-e),hi=p+e,scale=Math.max(hi*1.25,1);
+    box.className='price-card';
+    box.replaceChildren(
+      el('div',{style:'font-size:12.5px;opacity:.9;font-weight:600',text:'Predicted asking price'}),
+      el('div',{class:'price',text:'₹'+fmt(p)+' lakhs'}),
+      el('div',{style:'font-size:12.5px;opacity:.9',text:`Typically within ₹${fmt(lo,1)} – ₹${fmt(hi,1)} lakhs (± validation MAE)`}),
+      el('div',{class:'range'},el('i',{style:`left:${lo/scale*100}%;width:${(hi-lo)/scale*100}%`})),
+      el('div',{class:'row',style:'margin-top:12px;font-size:12px;opacity:.92'},el('span',{text:'✓ Passed data checks'}),el('span',{text:`· model v${r.model_version} · ${ms.toFixed(0)} ms round trip`})));
+  }catch(err){
+    box.className='price-card bad';
+    box.replaceChildren(el('div',{style:'font-size:12.5px;font-weight:700',text:'✕ Rejected by the data checks'}),el('div',{style:'font-size:20px;font-weight:750;margin:6px 0',text:err.message}),el('div',{style:'font-size:12.5px;opacity:.92',text:'Invalid input never reaches the model; the serving model is unchanged.'}));
+  }finally{btn.disabled=false;refreshStats()}
+}
+
+// ---------- Real listings ----------
+let batch=3;
+function batchButtons(){$('#batchBtns').replaceChildren(...[1,2,3].map(n=>el('button',{class:n===batch?'on':'',onclick:()=>{batch=n;batchButtons()}},el('span',{class:'sw',style:'background:'+BATCH_COLOR[n]}),'Batch '+n)))}
+let drawn=[];
+async function sample(){
+  const btn=$('#sampleBtn');btn.disabled=true;const tb=$('#sampleTable tbody');
+  tb.replaceChildren(el('tr',{},el('td',{colspan:8,class:'loading',style:'text-align:left',text:'Drawing listings and predicting…'})));
+  try{
+    const s=await api(`/samples?batch=${batch}&n=8`);
+    const p=await api('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({records:s.records})});
+    let total=0;
+    const rows=s.records.map((r,i)=>{const a=s.actual_price_lakhs[i],q=p.price_lakhs[i],e=q-a;total+=Math.abs(e);
+      drawn.push({x:a,y:q,b:batch,color:BATCH_COLOR[batch],tip:`${s.house_ids[i]} (batch ${batch}): actual ₹${fmt(a)} L, predicted ₹${fmt(q)} L`});
+      return el('tr',{},el('td',{class:'mono',text:s.house_ids[i]}),el('td',{text:fmt(r.Area_sqft,0)}),el('td',{text:r.Bedrooms}),el('td',{text:r.City_Zone}),el('td',{text:r.Property_Condition}),el('td',{text:fmt(a)}),el('td',{style:'font-weight:650',text:fmt(q)}),
+        el('td',{style:`font-weight:650;color:${Math.abs(e)>schema.monitoring.max_mae?'var(--critical-ink)':'var(--good-ink)'}`,text:(e>0?'+':'')+fmt(e)}))});
+    tb.replaceChildren(...rows);
+    drawn=drawn.slice(-48);
+    scatter($('#scatter'),drawn);
+    const seen=[...new Set(drawn.map(d=>d.b))].sort();
+    $('#scatterLegend').replaceChildren(...seen.map(b=>el('span',{},el('span',{class:'sw',style:'background:'+BATCH_COLOR[b]}),'Batch '+b)),el('span',{text:'· dots accumulate across draws'}));
+    $('#sampleSummary').textContent=`Average error on these ${s.records.length}: ₹${fmt(total/s.records.length)} L (alert limit ₹${fmt(schema.monitoring.max_mae,1)} L over a whole batch)`;
+  }catch(e){tb.replaceChildren(el('tr',{},el('td',{colspan:8},el('div',{class:'error-box',text:e.message}))))}
+  finally{btn.disabled=false;refreshStats()}
+}
+
+// ---------- Pipeline ----------
+async function loadPipeline(){
+  try{
+    const p=await api('/pipeline');const gates={validate:'DATA GATE',evaluate:'MODEL GATE'};
+    const dur=r=>r.seconds<1?(r.seconds*1000).toFixed(0)+' ms':r.seconds.toFixed(1)+' s';
+    $('#flow').replaceChildren(...p.stages.map((s,i)=>{const r=p.results[s],ok=r&&r.status==='PASSED';
+      return el('div',{class:'st'+(gates[s]?' gate':'')+(r&&!ok?' fail':''),style:'--sc:'+STAGE_COLOR[i]},gates[s]?el('span',{class:'gl',text:gates[s]}):null,el('div',{class:'num',text:i+1}),el('div',{class:'t',text:s}),
+        el('div',{class:'s'},r?status(ok?'good':'critical',ok?dur(r):'failed'):status('warning','not run')))}));
+    $('#ovFlow').replaceChildren(...p.stages.map((s,i)=>{const r=p.results[s];return el('span',{style:'--sc:'+(r&&r.status==='PASSED'?STAGE_COLOR[i]:'var(--critical)'),text:(r&&r.status==='PASSED'?'✓ ':'✕ ')+s})}));
+    $('#ovRun').replaceChildren(status(p.status==='FINISHED'?'good':'warning',p.status==='FINISHED'?'all stages passed':p.status.toLowerCase()));
+    const ev=p.evaluation,q=schema.quality;
+    const rows=[
+      ['Validation MAE',`₹${fmt(ev.metrics.mae)} L`,`≤ ₹${q.max_mae} L`,ev.metrics.mae<=q.max_mae],
+      ['Validation RMSE',`₹${fmt(ev.metrics.rmse)} L`,`≤ ₹${q.max_rmse} L`,ev.metrics.rmse<=q.max_rmse],
+      ['vs. serving model',ev.champion_version==null?'first deployment':`v${ev.champion_version}: ₹${fmt(ev.metrics.champion_mae)} L`,`≤ ${q.max_relative_regression*100}% worse`,ev.champion_version==null?null:ev.metrics.mae<=ev.metrics.champion_mae*(1+q.max_relative_regression)],
+    ];
+    $('#gate').replaceChildren(el('table',{},el('thead',{},el('tr',{},el('th',{text:'Check'}),el('th',{text:'Candidate'}),el('th',{text:'Rule'}),el('th',{text:'Result'}))),
+      el('tbody',{},...rows.map(([a,b,c,ok])=>el('tr',{},el('td',{text:a}),el('td',{text:b}),el('td',{text:c}),el('td',{},ok==null?el('span',{class:'hint',text:'no incumbent'}):status(ok?'good':'critical',ok?'pass':'fail')))))));
+    $('#gate').classList.remove('loading');
+    $('#runinfo').replaceChildren(el('div',{class:'kv'},
+      el('div',{text:'Pipeline run'}),el('div',{class:'mono',text:p.run_id}),
+      el('div',{text:'MLflow run'}),el('div',{class:'mono',text:p.mlflow_run_id}),
+      el('div',{text:'Started'}),el('div',{text:new Date(p.created).toLocaleString()}),
+      el('div',{text:'Outcome'}),el('div',{},status(p.status==='FINISHED'?'good':'warning',p.status.toLowerCase())),
+      el('div',{text:'Total stage time'}),el('div',{text:Object.values(p.results).reduce((a,r)=>a+r.seconds,0).toFixed(2)+' s'})));
+    $('#runinfo').classList.remove('loading');
+  }catch(e){$('#flow').replaceChildren(el('div',{class:'error-box',text:e.message}));$('#ovFlow').replaceChildren(el('div',{class:'error-box',text:e.message}))}
+}
+
+// ---------- Monitoring ----------
+function batchState(b){return b.performance_alert?['critical','Performance alert']:b.data_alert?['warning','Data drift']:['good','Stable']}
+async function loadMonitoring(){
+  try{
+    const m=await api('/monitoring');monitorData=m;const mon=schema.monitoring;
+    $('#monLede').textContent=`Each batch of 500 listings is compared with the ${m.reference_rows.toLocaleString()} training listings (data drift) and scored against its real prices (performance drift).`;
+    const top=Math.max(...m.batches.map(b=>b.mae),mon.max_mae)*1.15;
+    $('#batchCards').replaceChildren(...m.batches.map(b=>{const[kind,word]=batchState(b);
+      return el('div',{class:'card bcard',style:'--bc:'+BATCH_COLOR[b.batch]},
+        el('div',{class:'row',style:'justify-content:space-between'},el('div',{class:'row',style:'font-weight:750;font-size:16px'},el('span',{class:'sw',style:'background:'+BATCH_COLOR[b.batch]}),'Batch '+b.batch),status(kind,word)),
+        el('div',{class:'bnum',style:'margin-top:8px',text:'₹'+fmt(b.mae)+' L'}),el('div',{class:'hint',text:`average error · ${fmt(b.mae_ratio)}× validation · RMSE ₹${fmt(b.rmse)} L`}),
+        el('div',{class:'meter'},el('i',{style:`width:${b.mae/top*100}%`}),el('b',{style:`left:${mon.max_mae/top*100}%`,title:'alert limit'})),
+        el('p',{style:'margin:8px 0 2px;font-size:12.5px',text:'Shifted inputs: '+(b.drifted_features.map(label).join(', ')||'none above threshold')}),
+        el('p',{style:'margin:0;font-size:12px;color:var(--text-2)',text:'→ '+b.action}));
+    }));
+    $('#ovBatches').replaceChildren(...m.batches.map(b=>{const[kind,word]=batchState(b);
+      return el('div',{style:`border-radius:12px;padding:10px;background:var(--surface-2);border-top:4px solid ${BATCH_COLOR[b.batch]}`},el('div',{style:'font-weight:700',text:'Batch '+b.batch}),
+        el('div',{style:'font-size:22px;font-weight:800;font-variant-numeric:tabular-nums',text:'₹'+fmt(b.mae,1)}),el('div',{class:'hint',style:'margin-bottom:6px',text:'avg error, lakhs'}),status(kind,word))}));
+    const val=lineage?.validation.mae;
+    barChart($('#maeChart'),m.batches.map(b=>({label:'Batch '+b.batch,value:b.mae,color:BATCH_COLOR[b.batch],showValue:true,tip:`Batch ${b.batch}: MAE ₹${fmt(b.mae)} L (${fmt(b.mae_ratio)}× validation)`})),
+      {height:190,refs:[{value:mon.max_mae,label:`alert limit ₹${mon.max_mae}`,color:'var(--critical)'},...(val?[{value:val,label:`validation ₹${fmt(val)}`,dash:'2 3'}]:[])]});
+    $('#maeLegend').replaceChildren(el('span',{},el('span',{class:'sw',style:'background:var(--critical);height:3px'}),'alert limit'),el('span',{},el('span',{class:'sw',style:'background:var(--text-2);height:3px'}),'validation error at training time'));
+    const feats=Object.keys(m.batches[0].feature_statistics);
+    const step=r=>r<.25?0:r<.5?1:r<.75?2:r<1?3:4;
+    $('#heat').replaceChildren(el('thead',{},el('tr',{},el('th',{text:'Feature'}),...m.batches.map(b=>el('th',{style:'text-align:center'},el('span',{class:'sw',style:'background:'+BATCH_COLOR[b.batch]+';margin-right:5px'}),'B'+b.batch)))),
+      el('tbody',{},...feats.map(f=>el('tr',{},el('td',{},label(f),el('span',{class:'hint',text:' · '+(m.batches[0].feature_statistics[f].method==='KS D'?'KS':'TV')})),
+        ...m.batches.map(b=>{const s=b.feature_statistics[f],r=s.value/s.threshold,k=step(r);const td=el('td',{class:'cell'+(r>1?' over':''),style:`background:var(--seq-${k});color:${k>=3?'#fff':'var(--text)'}`,text:(r>1?'▲ ':'')+s.value.toFixed(3)});hover(td,`${label(f)}, batch ${b.batch}: ${s.method} ${s.value.toFixed(3)} vs threshold ${s.threshold}${r>1?' — drift alert':''}`);return td})))));
+    $('#heatLegend').replaceChildren(el('span',{text:'Share of threshold:'}),...['<25%','25–50%','50–75%','75–100%','over'].map((t,i)=>el('span',{},el('span',{class:'sw',style:`background:var(--seq-${i})`}),t)),el('span',{text:`▲ = alert (KS > ${mon.ks_threshold}, TV > ${mon.categorical_tv_threshold})`}));
+  }catch(e){$('#batchCards').replaceChildren(el('div',{class:'error-box',text:e.message}));$('#ovBatches').replaceChildren(el('div',{class:'error-box',text:e.message}))}
+}
+
+// ---------- Operations ----------
+async function refreshStats(){
+  if(!schema)return;
+  try{
+    const s=await api('/stats');const mon=schema.monitoring;
+    const errRate=s.requests?s.errors/s.requests:0,up=s.uptime_seconds;
+    const tiles=[
+      ['var(--c-predict)','Prediction requests',fmt(s.requests,0),`${fmt(s.requests_per_minute,2)} per minute since start`],
+      ['var(--c-monitor)','Rejected / failed',fmt(s.errors,0),`${fmt(errRate*100,1)}% of requests · mostly invalid input`],
+      ['var(--c-ops)','Mean latency',s.mean_latency_seconds==null?'—':fmt(s.mean_latency_seconds*1000,1)+' ms','server-side, per request'],
+      ['var(--c-pipeline)','p95 latency',s.p95_latency_bucket_seconds==null?'—':'≤ '+fmt(s.p95_latency_bucket_seconds*1000,0)+' ms',`target ≤ ${mon.p95_latency_seconds*1000} ms (histogram bucket)`],
+      ['var(--c-lineage)','Server up for',up<3600?Math.round(up/60)+' min':(up/3600).toFixed(1)+' h','counters reset on restart'],
+    ];
+    $('#opTiles').replaceChildren(...tiles.map(([c,a,b,d])=>el('div',{class:'card tile soft',style:'--c:'+c},el('div',{class:'label',text:a}),el('div',{class:'value',text:b}),el('div',{class:'sub',text:d}))));
+    const edges=(bk,unit,noun,scale=1)=>bk.map((b,i)=>{const lo=i?bk[i-1].le*scale:0;return{label:b.le==null?`>${fmt(lo,0)}`:`≤${fmt(b.le*scale,0)}`,value:b.count,tip:`${b.le==null?'over '+fmt(lo,0):fmt(lo,0)+'–'+fmt(b.le*scale,0)}${unit}: ${b.count} ${noun}${b.count===1?'':'s'}`}});
+    if(s.predicted_price_buckets.some(b=>b.count))barChart($('#priceChart'),edges(s.predicted_price_buckets,' L','prediction'),{height:200,integer:true,color:'var(--c-predict)'});
+    else $('#priceChart').replaceChildren(el('p',{class:'loading',text:'No predictions yet on this server process. Try the Predict tab.'}));
+    if(s.latency_buckets.some(b=>b.count))barChart($('#latChart'),edges(s.latency_buckets,' ms','request',1000),{height:200,integer:true,color:'var(--c-ops)'});
+    else $('#latChart').replaceChildren(el('p',{class:'loading',text:'No requests recorded yet.'}));
+  }catch(e){$('#opTiles').replaceChildren(el('div',{class:'error-box',text:e.message}))}
+}
+
+(async()=>{
+  batchButtons();$('#predictBtn').onclick=predict;$('#sampleBtn').onclick=sample;
+  try{await loadOverview()}catch{return}
+  schema=await api('/schema');buildForm();
+  await Promise.all([loadPipeline(),loadMonitoring(),refreshStats()]);
+  setInterval(refreshStats,10000);
+})();
+</script>
+</body>
+</html>
