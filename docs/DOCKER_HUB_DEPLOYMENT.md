@@ -1,3 +1,5 @@
+> **Current status: 22 October 2026.** Read [../CLAUDE.md](../CLAUDE.md) first. GitHub setup, Docker Hub publishing, Render API hosting, and automatic deployment are complete. This guide retains earlier setup/reference instructions; do not repeat completed steps. The current workstation is macOS.
+
 # Docker Hub → Windows or Linux server
 
 **Chosen route:** GitHub stores code and runs tests. Docker Hub stores the built application image. Your Windows Docker Desktop or a Linux server runs the image together with MLflow and monitoring.

@@ -1,375 +1,46 @@
-# Group 4 — What is done, what is ready, and what remains
+# Group 4 — current project handoff
 
-**Read this file first. You do not need to read all the other guides now.**
+**Updated 22 October 2026.** For the complete portable AI context, read **[CLAUDE.md](CLAUDE.md)**. Give that file to Claude first; it explains the assignment, work completed, files, deployment, credentials, Git state, and remaining tasks.
 
-| Project detail | Information |
+## What was requested
+
+An eight-stage house-price MLflow pipeline from raw data through validation, training, evaluation, registration, deployment, and monitoring, with safe failures, rollback, CI/CD, and presentation evidence.
+
+Team: Swagata Bhowmik (B053), Sumit Kothari (B062). Professor: Dr. Santosh Kumar. Current computer: this Mac; the Windows plan is historical.
+
+## What is ready
+
+- 🟢 Pipeline, model comparison, final evaluation, MLflow registry and local rollback evidence.
+- 🟢 Three-batch monitoring reports, tests, Docker/Compose configuration, design/reflection PDF drafts.
+- 🟢 Public GitHub repository, Docker Hub images and GitHub releases.
+- 🟢 Live API: https://group4-mlflow-capstone.onrender.com/docs
+- 🟢 Automatic deployment verified: push to main → checks/release → Render → live health and commit verification.
+
+Latest verified automatic deployment: **b608040**, workflow [39715048382](https://github.com/Swagata-Bhowmik/group4-mlflow-capstone/actions/runs/39715048382).
+
+## What remains
+
+- 🟡 Passing/failing PR evidence.
+- 🟡 Full live MLflow/Grafana/Prometheus demonstration and screenshots.
+- 🟡 Real network safe-failure, rollback, and workload measurements.
+- 🟡 Explicit fresh-clone reproducibility record and final evidence packaging.
+- 🟡 Updated PDFs/ZIP and team presentation.
+
+The live Render Free service hosts the API demo. It sleeps when idle and has temporary runtime storage. The full persistent monitoring stack is separate. The assignment is not completely submission-ready yet.
+
+## Important Git note
+
+Before synchronization, local HEAD was `2be7c54`; remote main advanced through `b608040` and the documentation synchronization commit via GitHub API. Local files include newer work. Do not force-push, reset, or blindly pull over them. Follow the safe synchronization guidance in CLAUDE.md. This documentation refresh is included in the remote synchronization commit. Updating local Git metadata still requires the user's Terminal because the assistant cannot write `.git`.
+
+## Read next
+
+| File | Purpose |
 |---|---|
-| Assignment | Project 4: Capstone — End-to-End MLflow Pipeline from Raw Data to Monitored Deployment |
-| Team | Swagata Bhowmik (B053) and Sumit Kothari (B062) |
-| Professor | Dr. Santosh Kumar |
-| Your computer | This Mac laptop — supersedes the earlier Windows plan |
-| Agreed publishing route | GitHub for code and checks → Docker Hub for the application image → Docker host for running it |
-| Current handoff | 5 October 2026 |
-
-
-> **Latest platform decision:** Continue on this same Mac. The Windows execution steps below are retained as earlier planning, not the current setup route. Git Bash is unnecessary: use the Mac Terminal. The local setup script is `setup-git-identities.local.sh`. The assistant's filesystem permissions currently block `.git` creation; running the script in your own Terminal on this Mac is the remaining local initialization step. No transfer to Windows is needed.
-
-## 1. The honest current position
-
-**The main program has been written and tested locally. The assignment is not yet fully ready for final submission.**
-
-The remaining work is to run the containerized system on your Windows computer, complete real GitHub/Docker Hub publishing and deployment evidence, capture screenshots, and prepare the team demonstration.
-
-No GitHub repository has been created or uploaded by the assistant. No Docker Hub image has been published. No live server has been deployed. The files that will do those things are prepared, but prepared files are not proof that those actions have happened.
-
-You do **not** need to rewrite the model or pipeline. We need to finish the real-world execution and presentation steps around the existing work.
-
-### Three labels used throughout this file
-
-- **🟢 Verified locally:** We executed it or inspected the document and have evidence.
-- **🟡 Prepared:** The necessary files exist, but this part still needs execution or verification.
-- **⬜ Needs your participation:** Requires your Windows computer, account access, screenshots, or presentation.
-
-## 2. What the professor asked for — in plain language
-
-Build a system for a company that predicts house asking prices in **₹ lakhs**.
-
-The complete system must:
-
-1. Read the supplied house data.
-2. Check whether the data is acceptable.
-3. Prepare the inputs and train a prediction model.
-4. Check whether that model is accurate enough and compare it with the current model.
-5. Record which data, code, settings, and training run produced it.
-6. Serve predictions through a **containerized API**: a running service that accepts property details and returns prices.
-7. Monitor the service and check the three incoming data batches for changes and reduced prediction accuracy.
-8. **Keep the previous working model serving when an update fails.**
-9. Run automatic checks for GitHub pull requests, then build and release on a main-branch update.
-10. Show the complete loop and a failure scenario in a **5–10 minute demonstration**.
-
-Both team members must have genuine repository contributions and be able to explain, justify, and modify the work.
-
-### Required submission material
-
-- One repository containing the code, configuration, tests, workflows, Dockerfile and README.
-- A design note of **at most two pages**, including an architecture diagram.
-- Workflow graph, run history and registry screenshots.
-- Evidence of a bad-data failure and a poor-model failure, with continued serving.
-- Model lineage: a trace from the deployed model to its code, data, settings and run.
-- Actual CI history, including passing/failing checks and at least one release.
-- Monitoring dashboard or report for all three incoming batches.
-- Documented and tested rollback.
-- A **5–10 minute demonstration** involving both members.
-- A **one-page reflection** on future improvements.
-
-The supplied document `Capstone End_to_End_Pipeline.docx` is the authoritative assignment. No submission deadline or portal was supplied to the assistant.
-
-## 3. What we have already achieved
-
-| Work | What actually happened | Status |
-|---|---|---|
-| Assignment review | Read the complete brief, acceptance criteria, constraints and marks | 🟢 Verified locally |
-| Data investigation | Inspected all 4,000 historical listings and three batches of 500; checked missingness, duplicates, ranges and categories | 🟢 Verified locally |
-| Source-data preservation | Original CSV fingerprints stayed unchanged | 🟢 Verified locally |
-| Model comparison | Compared constant prediction, Ridge, random forest and gradient boosting | 🟢 Verified locally |
-| Evaluation design | Used 2,400 training, 800 validation and 800 reserved test records; fitted preprocessing only on training rows | 🟢 Verified locally |
-| Selected model | Ridge had the lowest validation average error in the initial comparison | 🟢 Verified locally |
-| Final test | Evaluated the reserved test once, after model selection | 🟢 Verified locally |
-| Eight-stage workflow | Implemented all stages, independent reruns, saved outputs, logs and artifact checks | 🟢 Verified locally |
-| MLflow | Recorded real experiments and registered two model versions | 🟢 Verified locally |
-| Failure protection | Rejected bad data and a deliberately poor model; previous version and prediction stayed unchanged | 🟢 Verified locally |
-| Model rollback | Restored model version 1 after a second valid release and checked the response | 🟢 Verified locally |
-| Batch monitoring | Measured all three incoming batches and created an HTML/JSON report | 🟢 Verified locally |
-| API checks | Tested prediction, validation, health, lineage and metrics through in-process HTTP | 🟢 Verified locally; live network check remains |
-| Software tests | **15 tests passed** | 🟢 Verified locally |
-| Reproduction | Repeated validation from a fresh directory using the same installed dependencies; identical MAE | 🟢 Verified locally; clean Windows build/fresh clone remains |
-| PDFs | Created and visually inspected a two-page design note and one-page reflection draft | 🟢 Ready for review/final updating |
-| Containers, dashboards, CI and publishing | Wrote Docker/Compose, monitoring configuration, GitHub checks and Docker Hub publishing workflow | 🟡 Prepared, not executed |
-
-### Results you can confidently report
-
-| Measurement | Actual result |
-|---|---|
-| Constant-price baseline validation error | ₹17.73 lakhs MAE |
-| Ridge validation error | ₹5.742 lakhs MAE |
-| Improvement over constant baseline | Approximately 67.6% lower validation MAE |
-| Final historical test | **₹5.775 lakhs MAE**, ₹7.506 lakhs RMSE, 800 listings |
-| Incoming batch 1 | ₹5.562 lakhs MAE; no configured alert |
-| Incoming batch 2 | ₹6.867 lakhs MAE; property-area shift alert |
-| Incoming batch 3 | ₹13.113 lakhs MAE; input-shift and accuracy alerts |
-| Local API benchmark | 100 warm in-process requests, zero errors; p95 about 3.69 ms |
-
-**MAE** is the average absolute prediction error. It does not guarantee that every property prediction is within that amount. The API timing above is a local in-process measurement, **not a Windows network or server-capacity result**.
-
-## 4. Which files are ready, and what each contains
-
-All paths refer to files **inside the extracted project folder**. Keep the folder structure intact.
-
-### A. The files you should open first
-
-| File name | What it contains | How to use it |
-|---|---|---|
-| **`START_HERE_PROJECT_HANDOFF.md`** | This single overview: assignment, completed work, file list, remaining actions and delivery checklist | Read first; use as the main status guide |
-| **`group4_capstone_submission.zip`** | Transfer package containing source code, data, documentation and evidence | Download the latest version and extract; ZIP is not itself the complete final submission |
-| `README.md` | Technical project explanation, architecture, results and commands | Main repository documentation |
-| `PROJECT_CONTEXT.md` | Detailed requirements, decisions, history, evidence and limitations | Give to an AI session when continuing the work |
-| `WINDOWS_START_HERE.md` | Detailed Windows commands, expected outcomes and screenshot names | Use when you reach the Windows execution steps below |
-| `docs/DOCKER_HUB_DEPLOYMENT.md` | Docker Hub account setup, GitHub publishing settings and host deployment instructions | Use at the publishing stage; do not start here before the local build |
-
-### B. Written submission documents
-
-| File name | Contents | Ready to submit unchanged? |
-|---|---|---|
-| `output/pdf/design_note.pdf` | Two-page objective, architecture, gates, evaluation, monitoring and limitations | Exists and visually checked; update pending-execution statements after Windows/GitHub work is finished |
-| `output/pdf/reflection.pdf` | One-page technical reflection and suggested improvements | Draft ready; both members should review/personalize it and understand it |
-| `docs/DEMO.md` | Eight-minute demonstration outline and questions to practice | Guide ready; it is not the actual recorded/live demonstration |
-| `docs/OPERATIONS.md` | Stage inputs/outputs, alert responses, deployment and rollback procedures | Ready as instructions; record the actual remaining host checks |
-| `docs/SUBMISSION.md` | Detailed acceptance checklist | Ready as a checklist; unchecked items still need completion |
-| `Capstone End_to_End_Pipeline.docx` | Professor's original brief | Reference, not a project report written by us |
-
-### C. Source code and data
-
-| File name | What it does |
-|---|---|
-| `config.yaml` | Main project settings: paths, inputs, model, error limits, monitoring and API |
-| `capstone/config.py` | Validates those settings |
-| `capstone/core.py` | Eight-stage pipeline, MLflow, data/model gates, model promotion and rollback |
-| `capstone/api.py` | Prediction service plus health, lineage and metrics endpoints |
-| `capstone/monitoring.py` | Measures batch changes/error and writes the monitoring report |
-| `capstone/demo.py` | Executes failure, rollback and local API demonstrations |
-| `capstone/__main__.py` | Command-line entry point for running project actions |
-| `capstone/__init__.py` | Python package marker |
-| `tests/test_capstone.py` | The 15 locally passing tests |
-| `requirements.txt` | Direct Python dependencies |
-| `requirements.lock` | Exact installed dependency versions for reproducible installation |
-| `data_manifest.json` | Fingerprints identifying the original supplied data |
-| `capstone_house_prices_train.csv` | Original 4,000 historical listings; unchanged |
-| `capstone_incoming_batches.csv` | Original 1,500 later listings; unchanged |
-| `.gitignore` | Excludes local environments, runtime state and temporary files from Git |
-| `.dockerignore` | Excludes unnecessary local files from the container image |
-
-The source code is ready and locally tested. A clean Docker build still needs verification on your Windows/Docker environment.
-
-### D. Prepared deployment and automation files
-
-| File name | What it prepares | What is not yet proven |
-|---|---|---|
-| `Dockerfile` | Application image | Actual clean image build |
-| `compose.yaml` | Starts pipeline/API/MLflow/Prometheus/Grafana together | Full stack running on your machine/server |
-| `.github/workflows/ci.yml` | PR checks and lightweight pipeline | Real passing/failing GitHub runs |
-| `.github/workflows/release.yml` | Checks, image build, Docker Hub push, GitHub release, optional host deployment | Authenticated publishing and real release/deployment |
-| `monitoring/prometheus.yml` | Metrics collection | Live target connectivity |
-| `monitoring/alerts.yml` | Operational alert rules | Actual alert behavior on the host |
-| `monitoring/dashboard.json` | Grafana panels | Live dashboard rendering/data |
-| `monitoring/grafana/provisioning/datasources/prometheus.yml` | Grafana-to-Prometheus connection | Live connection |
-| `monitoring/grafana/provisioning/dashboards/default.yml` | Automatic dashboard loading | Live provisioning |
-| `scripts/deploy.sh` | Gated container rollout and attempted recovery | Actual image/container rollback on the destination host |
-| `scripts/generate_monitoring_config.py` | Rebuilds alert/dashboard files from configuration | Generated files exist; services still need execution |
-| `scripts/snapshot_registry.py` | Exports real MLflow records | Already used locally; rerun for your new Windows state |
-| `scripts/check_reproduction.py` | Fresh-directory check using existing dependencies | Local check passed; it is not the separate fresh-clone test |
-| `scripts/build_documents.py` | Regenerates the PDFs | Already used locally; update content after final evidence |
-
-### E. Evidence files already produced
-
-| File name | What it proves or records |
-|---|---|
-| `reports/monitoring.html` | Human-readable, colored report of the measured three batches |
-| `reports/monitoring.json` | Exact drift/error numbers behind that report |
-| `reports/final_test.json` | One-time final historical test metrics |
-| `reports/safe_failures.json` | Bad-data/bad-model rejection and unchanged responses in local API tests |
-| `reports/rollback.json` | Executed model-version rollback |
-| `reports/lineage.json` | Real model/run/data/config/source trace |
-| `reports/registry.json` | Actual MLflow run/model records; this is **not** a UI screenshot |
-| `reports/operational.json` | Local request count, errors, timings and measurement method |
-| `reports/prometheus_metrics.txt` | Captured local API metrics response |
-| `reports/source_integrity.json` | Original source-data hashes unchanged |
-| `reports/reproduction.json` | Exact validation reproduction using existing dependencies |
-| `reports/pytest.log` and `reports/junit.xml` | Human-readable and machine-readable test results |
-| `reports/demo.log` | Detailed local demonstration output |
-| `reports/final_test.log` | Final-test console output |
-| `reports/monitoring_run.log` | Monitoring console output |
-| `reports/reproduction.log` | Reproduction console output |
-
-These are legitimate existing results. Keep them labeled as local evidence. Save new Windows evidence separately rather than claiming the old files were created on Windows.
-
-### F. Earlier model-comparison evidence
-
-| File name | Contents |
-|---|---|
-| `experiments/baseline_config.yaml` | Settings for the original four-model comparison |
-| `experiments/run_baselines.py` | Comparison script |
-| `experiments/baseline_results/results.json` | Full model-comparison results |
-| `experiments/baseline_results/split_membership.csv` | Training/validation/test listing IDs |
-| `experiments/baseline_results/validation_predictions.csv` | Actual prices and predictions for the validation set |
-
-**Not included in the ZIP:** local `.venv`, downloaded packages, runtime `state/`, and trained `.joblib` binaries. These are recreated by installing/building and running the pipeline. The ZIP therefore transfers the reproducible project, not a running server or a copy of the assistant's computer.
-
-## 5. The agreed tools — one route, no more switching
-
-| Tool | Its job | Does it run the project by itself? |
-|---|---|---|
-| GitHub | Stores source code, contributions, automated checks and release history | No; it also triggers build/deployment jobs |
-| Docker Desktop on Windows | Runs Linux containers on your computer | Yes, it can be the local demonstration host |
-| Docker Hub | Stores the built application image so another host can download it | **No. Image storage is not a running server.** |
-| Docker host | Downloads the image and runs the services | Yes; your Windows setup can serve this role initially |
-| MLflow | Records experiments, model versions and lineage | Part of the running system |
-| Prometheus and Grafana | Collect and display operational metrics | Part of the running system |
-
-The professor requires a containerized API and deployable image. That is why Docker remains part of the plan. Streamlit is not needed for the current project; the API already has a browser form at `/docs`.
-
-**Do not buy a cloud server just to begin.** First prove the project on Windows. A separate compatible server can be selected later if desired, within the assignment's free-resource constraint. No public website URL is explicitly required in the supplied brief. The current publishing workflow targets `linux/amd64`; an ARM-only host needs an appropriate build or supported emulation.
-
-## 6. What needs your participation, and what I can still do
-
-These limits describe **this current session**, which has access to the project workspace but not your Windows desktop/accounts.
-
-| Remaining action | What you need to do | What I can do |
-|---|---|---|
-| Windows setup | Install/start Docker Desktop, enable WSL if needed, approve system prompts | Give exact instructions and diagnose error output |
-| Run on your computer | Open PowerShell in the folder and execute the provided commands | Explain commands, expected results, and fixes; execute only if a suitable connected environment becomes available |
-| GitHub account | Sign in, create/publish the repository, invite Sumit and grant access | Prepare files/workflows and guide the account-side steps |
-| Docker Hub account | Sign in, create image repository, configure publishing token in GitHub | Configure image publishing and explain where settings go |
-| Credentials | Complete login/authorization yourself | Never need your password or token pasted into chat/source |
-| Server/host access | Keep Windows Docker running, or arrange access to a chosen compatible server | Prepare deployment and help verify it once accessible |
-| Screenshots | Capture actual pages on your machine if I cannot see them | Tell you exactly what to capture and check whether the evidence is sufficient |
-| Genuine student contributions | Each student makes changes they understand using their own account | Explain code and suggest useful contributions; cannot fabricate authorship |
-| Presentation | Both students learn, rehearse and record/present | Explain every component and prepare a speaking/practice guide |
-| Final documents | Review personal reflection and provide actual new evidence | Update the PDFs, README, context and final ZIP to match what happened |
-
-The assistant can continue writing and fixing the project. What it cannot truthfully manufacture is an executed action on an inaccessible Windows computer, a real authenticated publishing event, or the students' own presentation and understanding.
-
-## 7. Remaining work — do it in this exact order
-
-This section is the simple plan. Detailed commands are already in `WINDOWS_START_HERE.md`; do not try to carry out every phase at once.
-
-### Phase 1 — Get the project running on Windows
-
-**Your actions:**
-
-1. Download the newest `group4_capstone_submission.zip`.
-2. Extract it completely, for example to `C:\Projects\group4-capstone`.
-3. Install/open Docker Desktop using **Linux containers**, with WSL 2 where required.
-4. Follow **Windows guide Steps 1–4** to check Docker, build the image and run the tests.
-5. Follow **Steps 5–7** to run the pipeline, start services and request a real prediction.
-
-**Do not run this pipeline directly with native Windows Python.** It uses a POSIX file lock; Docker provides the Linux environment it needs.
-
-**Phase complete when:** Tests pass inside Docker; the browser prediction API, MLflow and monitoring services load; a real request returns a price.
-
-**Evidence:** Windows test output, pipeline output, live API response, MLflow runs and registry screenshots.
-
-### Phase 2 — Collect real serving, monitoring and rollback evidence
-
-**Your actions:** Follow **Windows guide Steps 8–10**.
-
-- Run the two intentional rejection demonstrations.
-- Check the live endpoint before and after; preserve version and prediction evidence.
-- Run a second valid release and demonstrate model rollback.
-- Generate live requests and capture Grafana/Prometheus and the network measurement.
-- Export fresh container reports into `windows-evidence/`.
-
-**Phase complete when:** You have real Windows/container screenshots and logs showing safety, monitoring and model rollback. Keep these separate from the earlier in-process evidence.
-
-**Important:** Copying a ready report is not the same as executing the live service. The guide explains how to capture both.
-
-### Phase 3 — Create the real GitHub project and contributions
-
-**Your actions:** Follow **Windows guide Steps 11–12**.
-
-- Sign into Swagata's GitHub account and publish the project.
-- Invite Sumit; both members make genuine changes they understand.
-- Create a valid PR and capture passing checks.
-- Create the clearly labeled intentional failing-check demonstration; capture its failure, then fix/remove it. Do not merge the failing change.
-
-**Phase complete when:** The actual repository is accessible and genuine contribution/PR/check history exists.
-
-**Evidence:** Repository URL, commit history, PR URLs, passing/failing check screenshots.
-
-### Phase 4 — Publish the image to Docker Hub
-
-**Your actions:** Use `docs/DOCKER_HUB_DEPLOYMENT.md`, Sections 1–3, and Windows guide Step 13.
-
-1. Create/sign into Docker Hub.
-2. Create repository `group4-mlflow-capstone`.
-3. In GitHub Actions settings, add variable `DOCKERHUB_USERNAME` and optionally `DOCKERHUB_REPOSITORY`.
-4. Create the Docker publishing token and store it as GitHub secret `DOCKERHUB_TOKEN`.
-5. Merge a valid change into `main` and wait for the publishing workflow.
-
-**Do not share the token in chat or put it in project files.**
-
-**Phase complete when:** Docker Hub contains the real image and the GitHub release contains its commit tag and exact digest.
-
-**Evidence:** Successful release workflow, Docker Hub image page, GitHub release URL and digest.
-
-### Phase 5 — Run the published image and prove deployment
-
-**Your actions:** Use `docs/DOCKER_HUB_DEPLOYMENT.md`, Sections 4–7, and Windows guide Steps 14–15.
-
-- Start with your Windows Docker host; a separate paid/cloud server is unnecessary to begin.
-- Pull the actual published image by digest.
-- Run the pipeline on that host to create model/MLflow state in persistent storage.
-- Verify the live service and lineage.
-- Configure the Linux self-hosted runner if demonstrating the prepared automatic persistent deployment job.
-- Verify the previous-image rollback procedure and fresh-clone reproduction.
-
-**Phase complete when:** The released image is actually running; automated deployment evidence exists; the tested rollback/reproduction procedures are documented.
-
-**Important:** “Image published” and “application deployed” are two different milestones. Moving the image does not automatically transfer another computer's models and MLflow database.
-
-### Phase 6 — Finalize the submission and presentation
-
-**Your actions:** Follow **Windows guide Step 16** and `docs/DEMO.md`.
-
-- Both members understand the work and practice explaining/modifying it.
-- Review/personalize the reflection.
-- Record/present the 5–10 minute demonstration.
-- Provide the actual completed Windows/GitHub results so the documents can be updated.
-
-**Assistant's remaining document work:** Update pending-status wording and evidence links, preserve page limits, and rebuild the final ZIP using the actual completed results.
-
-**Phase complete when:** The repository, documents, evidence and demonstration agree with one another and all required claims have real supporting results.
-
-## 8. What will be delivered in the final hand-in
-
-| Final item | Already available | Still to add/update |
-|---|---|---|
-| Repository | All source/config/tests/workflow/container files | Real GitHub URL, contributions and execution history |
-| Design note | `output/pdf/design_note.pdf`, two pages | Replace pending-environment statements once completed |
-| Reflection | `output/pdf/reflection.pdf`, one page | Team review/personalization and final factual updates |
-| Workflow graph | README/design diagram | Include it in presentation/screenshots as needed |
-| Model results | Baseline, validation and final-test evidence | Windows/fresh-clone reproduction evidence |
-| Failure evidence | Local JSON/logs | Live Windows/container before-and-after captures |
-| Lineage | Local actual MLflow records | Live screenshot and real commit-linked release lineage |
-| Rollback | Executed local model rollback | Container-host/image procedure evidence |
-| Monitoring | Three-batch HTML/JSON and local API metrics | Live operational dashboard and network measurement |
-| CI and image release | Workflow implementation | Actual PR checks, Docker Hub image, release URL |
-| Deployment | Deployment code/instructions | Actual host execution/automation evidence |
-| Presentation | `docs/DEMO.md` outline | Actual 5–10 minute recording or live presentation |
-| Final backup ZIP | Current transfer ZIP | Refresh after the remaining real evidence and document changes |
-
-**Do not submit the current ZIP as proof that every external task has been completed.** It is the working handoff package used to finish those tasks.
-
-## 9. Where to find things without getting confused
-
-Use these files in this order:
-
-1. **This file:** understand overall status and who does what.
-2. **`WINDOWS_START_HERE.md`:** exact Windows commands and screenshot names when executing each phase.
-3. **`docs/DOCKER_HUB_DEPLOYMENT.md`:** account/publishing/host details when you reach Phase 4.
-4. **`docs/DEMO.md`:** presentation preparation at the end.
-
-`PROJECT_CONTEXT.md` is the detailed memory for the assistant. `README.md` is the technical repository guide. You do not need to read them cover to cover before starting Phase 1.
-
-## 10. Your immediate next action
-
-**Download the latest ZIP, extract it on Windows, and complete Docker setup and the initial build/test steps in Phase 1.**
-
-If a step fails, save the step number and first relevant error text. The next work is diagnosing that result, not switching platforms or starting the project again. No cloud account or paid server is needed for this first phase.
-
-### Later addition: folder-specific Git commands
-
-`git-swagata`, `git-sumit` and `scripts/git-identity.sh` provide per-command author selection without changing global Git settings. Use Git Bash on Windows. Setup and shared-token authentication are explained in `docs/FOLDER_GIT_IDENTITIES.md`. Verified account emails must be configured locally; no token is embedded, and no project commit or push has been made.
-
-### Mac commit commands
-
-For the requested alternating import sequence, use `COMMIT_COMMANDS_MAC.md`. It lists exact staging paths, six commit commands, identity checks and a single secure-prompt push. These are proposed import commits, not evidence that either member independently authored the existing AI-assisted implementation. No project commits or push have been performed by the assistant.
+| [CLAUDE.md](CLAUDE.md) | Complete current AI handoff |
+| [docs/SUBMISSION.md](docs/SUBMISSION.md) | Submission checklist |
+| [docs/RENDER_DEPLOYMENT.md](docs/RENDER_DEPLOYMENT.md) | Live cloud service and auto-deployment |
+| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Pipeline and Compose operations |
+| [docs/DEMO.md](docs/DEMO.md) | Presentation flow |
+| [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) | Current pointer and detailed historical research |
+
+Earlier handoff preserved in [docs/history/HANDOFF_2026-10-05.md](docs/history/HANDOFF_2026-10-05.md); it is not the current status.

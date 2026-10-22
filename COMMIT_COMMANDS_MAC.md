@@ -1,3 +1,5 @@
+> **Current status: 22 October 2026.** Read [CLAUDE.md](CLAUDE.md) first. GitHub setup, Docker Hub publishing, Render API hosting, and automatic deployment are complete. This guide retains earlier setup/reference instructions; do not repeat completed steps. The current workstation is macOS.
+
 # Mac Terminal — ordered commits using the two identity wrappers
 
 **Repository:** `https://github.com/Swagata-Bhowmik/group4-mlflow-capstone`  

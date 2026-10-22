@@ -13,7 +13,7 @@ Target length: 8 minutes. Both students must understand every part; the suggeste
 | 5:45–7:00 | `python -m capstone demo` | Bad data and bad model rejected; same response/version preserved; rollback |
 | 7:00–8:00 | Reflection and evidence checklist | Explain limits honestly, propose improvements |
 
-Before recording, run the actual Docker/API and GitHub prerequisites in `SUBMISSION.md`. The existing local evidence does not substitute for an executed GitHub CI run, container serving, or genuine contributions. Avoid showing tokens or private environment variables.
+Before recording, review `SUBMISSION.md`. GitHub CI, Docker publishing and the Render API are verified; full monitoring screenshots, network failure/rollback evidence, and team rehearsal still need completion. Avoid showing tokens or private environment variables.
 
 ## Questions both presenters should answer
 

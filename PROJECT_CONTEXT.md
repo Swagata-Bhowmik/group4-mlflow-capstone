@@ -1,10 +1,10 @@
 # Group 4 · End-to-End MLflow Capstone
 
-> **Start here.** This is the project's portable context and progress record. A new collaborator or AI session should read this file before acting. It explains the assignment, the user's preferences, the work sequence, and the evidence available so far.
+> **Historical research log.** Read [CLAUDE.md](CLAUDE.md) first for current instructions. This file preserves the detailed earlier investigation, decisions, and execution history; it is not the current task checklist.
 >
-> **Current position:** Local implementation and evidence package completed: eight-stage MLflow workflow, gates, registry/lineage, API, monitoring, model rollback, tests, CI/container files, and PDFs. Final test MAE is 5.775 lakhs. Actual GitHub history, Docker execution, live network serving/UI screenshots and team demonstration remain pending external steps; see the 5 October delivery record below.
+> **Current position (22 October 2026):** GitHub publishing, Docker Hub releases, Render Free API deployment, and automatic main-branch deployment are complete and verified. Read [CLAUDE.md](CLAUDE.md) for the authoritative current handoff, remaining tasks, and local/remote Git discrepancy. Dated sections below preserve earlier research and may describe superseded pending work.
 
-**Last updated:** 5 October 2026 · **Course:** Elective II: Machine Learning Operations (MLOps)  
+**Current-status header updated:** 22 October 2026; historical research below dates from 5 October 2026 · **Course:** Elective II: Machine Learning Operations (MLOps)  
 **Assignment:** Project 4 — Capstone: End-to-End MLflow Pipeline from Raw Data to Monitored Deployment  
 **Brief prepared by:** Dr. Santosh Kumar
 
@@ -18,11 +18,11 @@ Color symbols always have accompanying words so the document remains understanda
 | Swagata Bhowmik | B053 | https://github.com/Swagata-Bhowmik |
 | Sumit Kothari | B062 | https://github.com/sum1tk |
 
-The user wants one complete, coherent project, with implementation organized by dependency and phase. Do not split engineering responsibilities between the two students by default. The intended repository owner is **Swagata-Bhowmik**; the repository name and visibility are undecided.
+The user wants one complete, coherent project, with implementation organized by dependency and phase. Do not split engineering responsibilities between the two students by default. The intended repository owner is **Swagata-Bhowmik**; the repository is public at https://github.com/Swagata-Bhowmik/group4-mlflow-capstone.
 
 The user starts without having read the assignment and wants clear, beginner-friendly explanations. Explain what each step accomplishes, what the user needs to do, and whether anything must be downloaded. Keep conversational updates concise to manage token use; preserve detailed context here.
 
-**Current authorization:** On 5 October the user authorized completing the assignment autonomously, making logical decisions, and stopping routine approval questions. This supersedes the earlier approval-per-phase preference. Proceed with necessary local implementation, installations, testing, documents and reversible fixes. The earlier explicit deferral of Git/GitHub access remains in effect: do not request credentials, initialize/push a repository, or fabricate Git history. Report genuine environmental blockers and continue independent work.
+**Current authorization:** The user authorized routine implementation, GitHub writes using the team credential, Docker Hub publishing, free Render hosting, and automatic deployment. Earlier Git deferral and per-step permission requests are superseded. Never fabricate contributions or expose secrets; respect active environment permissions. Current hosting is free with no payment card.
 
 The user values thoughtful investigation, visual clarity, restrained color, and a distinctive result. Distinction should come from demonstrated engineering quality and clear explanations, supported by attractive presentation.
 

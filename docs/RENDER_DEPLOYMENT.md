@@ -7,13 +7,14 @@ Deployed successfully on Render Free in Singapore.
 - API docs: https://group4-mlflow-capstone.onrender.com/docs
 - Health: https://group4-mlflow-capstone.onrender.com/health
 - Service ID: `srv-dbch1h5g1s2s73bimspg`
-- Deployment ID: `dep-dbch1htg1s2s73bimue0`
-- Deployment commit: `ed7d7f39e6b66c79760b3b57fe837e119ac7feff`
-- All five endpoint checks returned HTTP 200; prediction returned 97.8148 lakhs.
-- Evidence: `reports/render_deployment.json`.
+- Latest verified deployment ID: `dep-dbcnth2vcj2c73f9lt2g`
+- Latest verified deployment commit: `b608040a3dd52dc2514ce018ab990ab7d443ff1a`
+- Initial deployment: all five endpoint checks returned HTTP 200; prediction returned 97.8148 lakhs.
+- Initial evidence: `reports/render_deployment.json`. Current automatic deployment evidence: `reports/render_auto_deployment.json`.
 - Render native After CI Checks Pass did not trigger the source update.
-- Direct GitHub Actions → Render API automation is prepared, awaiting the
-  Render credential, enable flag, and first successful automated deployment.
+- Direct GitHub Actions → Render API automation is enabled and verified.
+  Commit b608040a3dd52dc2514ce018ab990ab7d443ff1a deployed automatically,
+  and public lineage matches. See reports/render_auto_deployment.json.
 The Docker Hub release and GitHub release workflow have succeeded.
 
 ## What this deployment provides
@@ -31,14 +32,14 @@ server. Continue using Compose for the full monitoring and rollback demo.
 The free service has 512 MB memory; startup and one prediction succeeded within this plan; sustained load is untested.
 It sleeps after 15 minutes without incoming traffic and can take time to wake.
 
-## Account setup
+## Account setup (already completed; recovery reference)
 
 1. Create a Render account at https://dashboard.render.com/ using your GitHub account.
 2. Use the Hobby workspace and Free service plan. Do not select a paid plan.
 3. If Render requires a payment card for your account, stop: the user's constraint
    is no payment card. Account verification requirements cannot be bypassed.
 
-## Deploy after this Dockerfile is pushed to GitHub
+## Initial service creation (already completed; do not create a duplicate)
 
 1. New → Web Service → connect `Swagata-Bhowmik/group4-mlflow-capstone`.
 2. Name: `group4-mlflow-capstone`; branch: `main`; runtime: Docker.

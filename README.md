@@ -1,5 +1,7 @@
 # Group 4 · House-price MLOps capstone
 
+**AI handoff:** Read [CLAUDE.md](CLAUDE.md) for current state and continuation instructions.
+
 **New reader: start with [START_HERE_PROJECT_HANDOFF.md](START_HERE_PROJECT_HANDOFF.md).** It explains what was requested, what is verified, which files are ready, and exactly what remains on your side.
 
 **Raw listings → validated model → monitored serving, with safe failure.**
@@ -21,9 +23,13 @@ Project 4, Elective II: MLOps · Dr. Santosh Kumar
 
 Read [the monitoring report](reports/monitoring.html), [full project context](PROJECT_CONTEXT.md), [design note](output/pdf/design_note.pdf), and [submission checklist](docs/SUBMISSION.md).
 
-**Evidence boundary:** The pipeline, actual MLflow registry, tests, and in-process HTTP demonstrations ran locally. Docker execution, live TCP serving, GitHub PR history, image publishing, and live UI screenshots could not run in this environment. GitHub access was explicitly deferred; the sandbox denies server socket binding and a container runtime is absent. Those items are listed honestly as pending, not simulated accomplishments. This repository folder has not been initialized or uploaded to GitHub.
+**Current status (22 October 2026):** GitHub tests/container checks, Docker Hub releases, the public Render API, and automatic main-branch deployment are verified. Open [the live API docs](https://group4-mlflow-capstone.onrender.com/docs). GitHub Actions deploys the exact passing commit and verifies live lineage. Render's native auto-deploy setting is intentionally off.
 
-## Windows users
+**Evidence boundary:** Full persistent MLflow/Prometheus/Grafana hosting, live rollback/failure demonstrations, workload measurements, PR scenario evidence, screenshots, and final presentation remain pending. Render Free sleeps when idle and restores image-baked model state on restart. See [the current checklist](docs/SUBMISSION.md).
+
+## Historical Windows instructions
+
+The active workstation is macOS. These Windows instructions are optional reference.
 
 Read [WINDOWS_START_HERE.md](WINDOWS_START_HERE.md) for the complete inventory, Docker-first PowerShell instructions and remaining submission checklist. Do not run the POSIX pipeline directly with native Windows Python.
 
