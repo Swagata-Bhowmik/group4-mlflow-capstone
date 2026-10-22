@@ -64,6 +64,21 @@ jobs:
         run: |
           printf 'Docker Hub image tag: `%s`\n\nExact image digest: `%s`\n\nThe configured capstone runner deploys this digest when ENABLE_LOCAL_DEPLOY=true. Otherwise use docs/DOCKER_HUB_DEPLOYMENT.md on your Docker host.\n' "$IMAGE" "$IMAGE_REF" > release-notes.md
           gh release create "build-${GITHUB_SHA}" --title "House-price API ${GITHUB_SHA:0:7}" --notes-file release-notes.md
+  deploy-render:
+    if: vars.ENABLE_RENDER_DEPLOY == 'true'
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy this commit to Render and verify lineage
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: srv-dbch1h5g1s2s73bimspg
+          CAPSTONE_PUBLIC_URL: https://group4-mlflow-capstone.onrender.com
+        run: python3 scripts/deploy_render.py
   deploy:
     if: vars.ENABLE_LOCAL_DEPLOY == 'true'
     needs: release

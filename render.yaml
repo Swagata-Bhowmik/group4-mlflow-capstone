@@ -5,7 +5,8 @@ services:
     plan: free
     repo: https://github.com/Swagata-Bhowmik/group4-mlflow-capstone
     branch: main
-    autoDeployTrigger: checksPass
+    # GitHub Actions triggers the exact passing commit through the Render API.
+    autoDeployTrigger: off
     dockerfilePath: ./deploy/render/Dockerfile
     dockerContext: .
     healthCheckPath: /health

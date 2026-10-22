@@ -11,8 +11,9 @@ Deployed successfully on Render Free in Singapore.
 - Deployment commit: `ed7d7f39e6b66c79760b3b57fe837e119ac7feff`
 - All five endpoint checks returned HTTP 200; prediction returned 97.8148 lakhs.
 - Evidence: `reports/render_deployment.json`.
-- User enabled After CI Checks Pass in Render; the first automatic deployment
-  of the updated source-build Dockerfile is awaiting verification.
+- Render native After CI Checks Pass did not trigger the source update.
+- Direct GitHub Actions → Render API automation is prepared, awaiting the
+  Render credential, enable flag, and first successful automated deployment.
 The Docker Hub release and GitHub release workflow have succeeded.
 
 ## What this deployment provides
@@ -56,10 +57,12 @@ and email verification must be completed by the account owner.
 
 ## Updating the model release
 
-Publish the updated Dockerfile and connect the service to its GitHub provider.
-Set Auto-Deploy to After CI Checks Pass (the desired render.yaml setting).
-Push or merge to main; Render builds that commit after GitHub checks succeed.
-A public-repository URL without a connected Git provider cannot auto-deploy.
+Store RENDER_API_KEY as a GitHub Actions repository secret and set repository
+variable ENABLE_RENDER_DEPLOY=true. Keep Render native Auto-Deploy off to avoid
+duplicate deployments. Push or merge to main: after the release job succeeds,
+the deploy-render job sends that exact GITHUB_SHA to Render, waits for a live
+deployment, and verifies the public health and model lineage. Failure is reported
+in GitHub Actions. This works with the existing public repository URL.
 Verify a real push and the new /lineage source commit before claiming automation.
 Each image remains a fixed demo model;
 runtime training and persistent lifecycle management belong to the Compose host.
