@@ -32,7 +32,7 @@ schema:
     City_Zone: [North, South, East, West, Central]
 model:
   kind: ridge
-  alpha: 10.0
+  alpha: 1000.0
   numeric_imputation: median
   categorical_imputation: most_frequent
   unknown_categories: ignore
