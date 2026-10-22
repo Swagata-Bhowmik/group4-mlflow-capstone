@@ -100,3 +100,19 @@ def test_champion_comparison_can_reject_despite_absolute_pass(cfg_path):
     with pytest.raises(GateError,match='regresses'):run.stage('evaluate')
     evidence=json.loads((run.directory/'evaluation.json').read_text())
     assert evidence['metrics']['mae']<run.cfg.quality.max_mae
+
+def test_dashboard_views_report_serving_run(cfg_path):
+    pipeline(cfg_path)
+    client=TestClient(create_app(cfg_path))
+    assert 'House Price MLOps' in client.get('/').text
+    assert [c['name'] for c in client.get('/schema').json()['categorical']]==['Property_Condition','City_Zone']
+    run=client.get('/pipeline').json()
+    assert run['status']=='FINISHED' and all(run['results'][s]['status']=='PASSED' for s in run['stages'])
+    assert [b['batch'] for b in client.get('/monitoring').json()['batches']]==[1,2,3]
+    sample=client.get('/samples',params={'batch':3,'n':20}).json()
+    assert len(sample['records'])==20 and len(sample['actual_price_lakhs'])==20
+    assert client.post('/predict',json={'records':sample['records']}).status_code==200
+    assert client.post('/predict',json={'records':[{**sample['records'][0],'Bedrooms':0}]}).status_code==422
+    assert client.get('/samples',params={'batch':4}).status_code==422
+    stats=client.get('/stats').json()
+    assert stats['requests']==2 and stats['errors']==1 and sum(b['count'] for b in stats['predicted_price_buckets'])==20

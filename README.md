@@ -23,7 +23,7 @@ Project 4, Elective II: MLOps · Dr. Santosh Kumar
 
 Read [the monitoring report](reports/monitoring.html), [full project context](PROJECT_CONTEXT.md), [design note](output/pdf/design_note.pdf), and [submission checklist](docs/SUBMISSION.md).
 
-**Current status (22 October 2026):** GitHub tests/container checks, Docker Hub releases, the public Render API, and automatic main-branch deployment are verified. Open [the live API docs](https://group4-mlflow-capstone.onrender.com/docs). GitHub Actions deploys the exact passing commit and verifies live lineage. Render's native auto-deploy setting is intentionally off.
+**Current status (22 October 2026):** GitHub tests/container checks, Docker Hub releases, the public Render API, and automatic main-branch deployment are verified. Open [the live dashboard](https://group4-mlflow-capstone.onrender.com/) or [the API docs](https://group4-mlflow-capstone.onrender.com/docs). GitHub Actions deploys the exact passing commit and verifies live lineage. Render's native auto-deploy setting is intentionally off.
 
 **Evidence boundary:** Full persistent MLflow/Prometheus/Grafana hosting, live rollback/failure demonstrations, workload measurements, PR scenario evidence, screenshots, and final presentation remain pending. Render Free sleeps when idle and restores image-baked model state on restart. See [the current checklist](docs/SUBMISSION.md).
 
@@ -48,7 +48,7 @@ python -m capstone serve
 
 In the current workspace `.venv` already contains MLflow and uses preinstalled scientific packages. `requirements.lock` records the dependency closure; a clean environment/container install is prepared but has not been executed here.
 
-The API is at `http://localhost:8000/docs`; `/health`, `/lineage`, and `/metrics` expose serving status, provenance, and Prometheus metrics. No credentials are needed for this local-only demonstration. Do not expose these development services publicly without authentication.
+The dashboard is at `http://localhost:8000/` and the API docs at `http://localhost:8000/docs`. The dashboard reads only the API: `/schema`, `/pipeline`, `/monitoring`, `/samples` and `/stats` are read-only views of the serving run, and predictions use `POST /predict`; `/health`, `/lineage`, and `/metrics` expose serving status, provenance, and Prometheus metrics. No credentials are needed for this local-only demonstration. Do not expose these development services publicly without authentication.
 
 Example request:
 
