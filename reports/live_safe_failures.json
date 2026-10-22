@@ -1,0 +1,75 @@
+{
+  "at": "2026-10-22T05:41:39.940092+00:00",
+  "transport": "Real HTTP over TCP to a separate Uvicorn process at http://127.0.0.1:8765",
+  "all_passed": true,
+  "scenarios": [
+    {
+      "scenario": "bad_data",
+      "change": "Training file with 20% of Age_Years blanked (limit 8%)",
+      "command": "python -m capstone --config config.yaml run --input state/demo_inputs/bad_missingness.csv",
+      "pipeline_exit_code": 1,
+      "last_passed_stage": "ingest",
+      "gate_message": "capstone.core.GateError: Age_Years: missing fraction exceeds limit",
+      "before": {
+        "model_version": 1,
+        "mlflow_run_id": "e956f36b75c640a5b5dbdcdb9f4f3e0c",
+        "model_sha256": "d337d2982f84347f9836421f2949ef11ae39e373673d14b4983eae0d907e4456",
+        "prediction_status": 200,
+        "price_lakhs": 20.441197401220663,
+        "production_pointer_sha256": "c454ed5dbd5b028dae02a6ceea48a61247cdb4861a3d4078dc9e3ca83a172510"
+      },
+      "after": {
+        "model_version": 1,
+        "mlflow_run_id": "e956f36b75c640a5b5dbdcdb9f4f3e0c",
+        "model_sha256": "d337d2982f84347f9836421f2949ef11ae39e373673d14b4983eae0d907e4456",
+        "prediction_status": 200,
+        "price_lakhs": 20.441197401220663,
+        "production_pointer_sha256": "c454ed5dbd5b028dae02a6ceea48a61247cdb4861a3d4078dc9e3ca83a172510"
+      },
+      "traffic_during_run": {
+        "requests": 56,
+        "errors": 0,
+        "model_versions_served": [
+          1
+        ],
+        "p95_ms": 7.63
+      },
+      "production_unchanged": true,
+      "passed": true
+    },
+    {
+      "scenario": "bad_model",
+      "change": "Configuration switched to a median-only dummy model",
+      "command": "python -m capstone --config state/demo_inputs/bad_model.yaml run",
+      "pipeline_exit_code": 1,
+      "last_passed_stage": "train",
+      "gate_message": "capstone.core.GateError: Candidate exceeds absolute error thresholds; Candidate regresses against current production",
+      "before": {
+        "model_version": 1,
+        "mlflow_run_id": "e956f36b75c640a5b5dbdcdb9f4f3e0c",
+        "model_sha256": "d337d2982f84347f9836421f2949ef11ae39e373673d14b4983eae0d907e4456",
+        "prediction_status": 200,
+        "price_lakhs": 20.441197401220663,
+        "production_pointer_sha256": "c454ed5dbd5b028dae02a6ceea48a61247cdb4861a3d4078dc9e3ca83a172510"
+      },
+      "after": {
+        "model_version": 1,
+        "mlflow_run_id": "e956f36b75c640a5b5dbdcdb9f4f3e0c",
+        "model_sha256": "d337d2982f84347f9836421f2949ef11ae39e373673d14b4983eae0d907e4456",
+        "prediction_status": 200,
+        "price_lakhs": 20.441197401220663,
+        "production_pointer_sha256": "c454ed5dbd5b028dae02a6ceea48a61247cdb4861a3d4078dc9e3ca83a172510"
+      },
+      "traffic_during_run": {
+        "requests": 59,
+        "errors": 0,
+        "model_versions_served": [
+          1
+        ],
+        "p95_ms": 9.27
+      },
+      "production_unchanged": true,
+      "passed": true
+    }
+  ]
+}

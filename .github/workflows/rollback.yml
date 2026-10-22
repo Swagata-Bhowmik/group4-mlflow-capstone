@@ -1,0 +1,36 @@
+name: Roll back Render deployment
+# Redeploy an earlier commit that already passed "Build and release" (it has a
+# build-<sha> GitHub release and Docker Hub image), then verify live lineage.
+# Roll forward the same way, or by pushing/merging to main.
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Full 40-character SHA of a previously released commit
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+jobs:
+  rollback-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm the target passed a release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET: ${{ inputs.commit }}
+        run: |
+          [[ "$TARGET" =~ ^[0-9a-f]{40}$ ]] || { echo "Give the full 40-character commit SHA."; exit 1; }
+          gh release view "build-$TARGET" --json tagName,name --jq '"Found release " + .name'
+          echo "Currently live: $(curl -fsS https://group4-mlflow-capstone.onrender.com/lineage | python3 -c 'import sys,json;print(json.load(sys.stdin)["source"]["commit"])')"
+      - name: Deploy that commit to Render and verify lineage
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: srv-dbch1h5g1s2s73bimspg
+          CAPSTONE_PUBLIC_URL: https://group4-mlflow-capstone.onrender.com
+          DEPLOY_COMMIT: ${{ inputs.commit }}
+        run: python3 scripts/deploy_render.py

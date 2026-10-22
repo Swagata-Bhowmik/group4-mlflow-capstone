@@ -1,0 +1,103 @@
+{
+  "at": "2026-10-22T05:43:12.739207+00:00",
+  "target": "https://group4-mlflow-capstone.onrender.com",
+  "client": "Python urllib from the team laptop over the public internet",
+  "workload": {
+    "sequential_requests": 100,
+    "concurrent_workers": 5,
+    "requests_per_worker": 40,
+    "payload": "one listing per request, rotated over 200 training listings (seed 42)"
+  },
+  "warmup": {
+    "status": 200,
+    "seconds": 0.13,
+    "note": "includes free-host wake-up if the service was idle"
+  },
+  "sequential": {
+    "requests": 100,
+    "succeeded": 100,
+    "errors": 0,
+    "error_rate": 0.0,
+    "wall_seconds": 17.79,
+    "throughput_rps": 5.62,
+    "p50_ms": 194.3,
+    "p95_ms": 212.6,
+    "p99_ms": 244.8,
+    "max_ms": 264.9
+  },
+  "concurrent": {
+    "requests": 200,
+    "succeeded": 200,
+    "errors": 0,
+    "error_rate": 0.0,
+    "wall_seconds": 24.89,
+    "throughput_rps": 8.03,
+    "p50_ms": 607.3,
+    "p95_ms": 857.2,
+    "p99_ms": 903.7,
+    "max_ms": 993.6
+  },
+  "server_side": {
+    "requests_counted": 300.0,
+    "mean_ms": 270.3,
+    "p95_bucket_upper_ms": 1000.0,
+    "buckets_ms": [
+      {
+        "le_ms": 5.0,
+        "count": 0.0
+      },
+      {
+        "le_ms": 10.0,
+        "count": 0.0
+      },
+      {
+        "le_ms": 25.0,
+        "count": 40.0
+      },
+      {
+        "le_ms": 50.0,
+        "count": 12.0
+      },
+      {
+        "le_ms": 100.0,
+        "count": 50.0
+      },
+      {
+        "le_ms": 200.0,
+        "count": 10.0
+      },
+      {
+        "le_ms": 500.0,
+        "count": 144.0
+      },
+      {
+        "le_ms": 1000.0,
+        "count": 44.0
+      },
+      {
+        "le_ms": 5000.0,
+        "count": 0.0
+      },
+      {
+        "le_ms": null,
+        "count": 0.0
+      }
+    ],
+    "note": "Measured inside the API (includes queueing in the single Uvicorn worker), from /stats before and after the valid-request phases."
+  },
+  "invalid_requests": {
+    "sent": 5,
+    "rejected_with_422": 5
+  },
+  "targets": {
+    "p95_latency_target_ms": 200.0,
+    "observed_p95_ms_all_valid_requests": 819.1,
+    "server_side_p95_bucket_ms": 1000.0,
+    "server_side_p95_target_met": false,
+    "p95_target_met_end_to_end": false,
+    "error_rate_target": 0.01,
+    "observed_error_rate": 0.0,
+    "error_target_met": true,
+    "note": "End-to-end times include internet round trip and TLS from the client; the configured target was set for server-side latency."
+  }
+}
