@@ -2,8 +2,6 @@
 
 **AI handoff:** Read [CLAUDE.md](CLAUDE.md) for current state and continuation instructions.
 
-**New reader: start with [START_HERE_PROJECT_HANDOFF.md](START_HERE_PROJECT_HANDOFF.md).** It explains what was requested, what is verified, which files are ready, and exactly what remains on your side.
-
 **Raw listings → validated model → monitored serving, with safe failure.**
 
 Swagata Bhowmik (B053) · Sumit Kothari (B062)  
@@ -20,12 +18,19 @@ Project 4, Elective II: MLOps · Dr. Santosh Kumar
 | Incoming batch 3 | MAE ₹13.113 lakhs; area, bedrooms, bathrooms, city-zone and performance alerts |
 | Bad-data and bad-model demonstrations | Both rejected; previous model version and prediction preserved |
 | Model rollback | Executed and verified through the API |
+| Failing gates against a real HTTP server | Bad data stopped at validate, bad model at evaluate; 0 errors while serving ([live_safe_failures.json](reports/live_safe_failures.json)) |
+| CI history | PR #2 (alpha 1000) failed at the model gate, then fixed; every merge to main released and deployed |
+| Live rollback | Rollback workflow redeploys an earlier release and verifies lineage ([render_rollback.json](reports/render_rollback.json)) |
+| Network load test | 300 requests to Render, 0 errors; p95 latency target not met with 5 concurrent clients ([load_test.json](reports/load_test.json)) |
+| Fresh-clone reproduction | Clean clone + locked install, 16 tests pass, MAE reproduced ([fresh_clone_reproduction.json](reports/fresh_clone_reproduction.json)) |
 
-Read [the monitoring report](reports/monitoring.html), [full project context](PROJECT_CONTEXT.md), [design note](output/pdf/design_note.pdf), and [submission checklist](docs/SUBMISSION.md).
+**Live:** [dashboard](https://group4-mlflow-capstone.onrender.com/) · [API docs](https://group4-mlflow-capstone.onrender.com/docs) · [lineage](https://group4-mlflow-capstone.onrender.com/lineage). The free host sleeps when idle; the first request can take about a minute.
 
-**Current status (22 October 2026):** GitHub tests/container checks, Docker Hub releases, the public Render API, and automatic main-branch deployment are verified. Open [the live dashboard](https://group4-mlflow-capstone.onrender.com/) or [the API docs](https://group4-mlflow-capstone.onrender.com/docs). GitHub Actions deploys the exact passing commit and verifies live lineage. Render's native auto-deploy setting is intentionally off.
+**Documents:** [design note](output/pdf/design_note.pdf) · [reflection](output/pdf/reflection.pdf) · [screenshots](output/screenshots/README.md) · [demo script](docs/DEMO.md) · [operations and rollback](docs/OPERATIONS.md) · [submission checklist](docs/SUBMISSION.md)
 
-**Evidence boundary:** Full persistent MLflow/Prometheus/Grafana hosting, live rollback/failure demonstrations, workload measurements, PR scenario evidence, screenshots, and final presentation remain pending. Render Free sleeps when idle and restores image-baked model state on restart. See [the current checklist](docs/SUBMISSION.md).
+**How we built this:** we used an AI coding assistant for much of the implementation; we set the requirements and thresholds, checked results against the recorded evidence, and can explain and modify every stage.
+
+**Limits:** Render Free has one worker, no persistent state and no authentication; Prometheus/Grafana run only on a Docker host via `compose.yaml`. See the checklist for details.
 
 ## Historical Windows instructions
 

@@ -1,6 +1,6 @@
 # Group 4 capstone — complete AI handoff
 
-**Updated: 22 October 2026. Read this file first.** This is the current project
+**Updated: 23 October 2026. Read this file first.** This is the current project
 context for Claude or any new collaborator. It supersedes older status claims
 in the historical sections of `PROJECT_CONTEXT.md` and the Windows setup guides.
 Recheck external service state before making new deployment claims.
@@ -59,8 +59,13 @@ No submission deadline or portal is known. The project is not yet fully submissi
 | Docker Hub publication and GitHub releases | Successful |
 | Public prediction API | Live on Render Free; HTTP health/predict/docs/lineage/metrics verified |
 | Automatic deployment from main | Verified end-to-end for commit `b608040` |
-| Full live MLflow / Prometheus / Grafana stack | Compose files exist; persistent hosted stack still pending |
-| Real deployment rollback, PR scenarios, screenshots, presentation | Still pending; see section 9 |
+| Dashboard (7 tabs) at `/` | Live; PR #1 |
+| Failing PR evidence | PR #2: alpha 1000 failed at model gate, fix passed (Sumit) |
+| Real-server safe failure, load test, fresh clone | `reports/live_safe_failures.json`, `load_test.json`, `fresh_clone_reproduction.json` |
+| Live rollback | Workflow `rollback.yml`; test `reports/render_rollback.json` |
+| Screenshots, design note, reflection | `output/screenshots/`, `output/pdf/` (rebuilt 23 Oct) |
+| Prometheus / Grafana on a persistent host | Not run (Docker not installed locally) |
+| Demo recording | Team still to record (`docs/DEMO.md`) |
 
 The earlier `reports/lineage.json` records `uncommitted-local-source`. It is historical
 local evidence, not today's deployed model. Current public lineage records a real Git SHA.
@@ -251,25 +256,15 @@ inspection. Public API has no authentication. No high-availability claim is just
 
 ## 9. Remaining work, in order
 
-1. Reconcile local checkout with remote safely; publish current documentation/evidence.
-2. Capture genuine passing and failing PR CI history; fix the failing PR and retain evidence.
-   Earlier failures were runner allocation and missing settings, not the requested model/data PR scenarios.
-3. Run the full Compose monitoring stack on a suitable Docker host (Mac or Linux);
-   capture MLflow run/registry and Grafana/Prometheus screenshots. Do not expose their
-   unauthenticated admin surfaces publicly; supplied ports bind to localhost.
-4. Demonstrate rejected bad data and bad model while the real network endpoint keeps
-   serving the previous model. Existing safe-failure proof used TestClient in-process.
-5. Execute and document rollback on a real deployed container/image. Local model
-   rollback passed; live Render/image rollback has not been demonstrated.
-6. Measure real network latency/errors/throughput with a documented workload.
-   A successful prediction is not a sustained load test.
-7. Complete an explicit fresh-clone reproduction record. GitHub clean runners already
-   installed locked dependencies and passed tests; older reproduction.json used the
-   same local interpreter and is not a fresh-install report.
-8. Update design/reflection PDFs and submission checklist to reflect actual Render
-   architecture and limitations; rebuild submission ZIP; check all screenshots/links.
-9. Prepare and rehearse the 5–10 minute demo with both members; submit through the
-   professor's required channel once known.
+Deadline: **24 October 2026**. Everything except the recording and upload is done; see `docs/SUBMISSION.md`.
+
+1. Team rehearses and records the 5–10 minute demo (`docs/DEMO.md`), both speaking.
+2. Build the ZIP with `scripts/build_submission.sh` from the final `main`, and submit with the recording.
+
+Git rules for this repo: commit only as Swagata or Sumit (`./git-swagata`, `./git-sumit`), short
+messages, **no Claude co-author trailers or "Generated with Claude Code" footers**. Push with
+`https://Swagata-Bhowmik@github.com/...` (the default credential is an unrelated account). Merging PRs
+and rewriting history must be done by the user.
 
 ## 10. Practical continuation
 

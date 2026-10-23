@@ -1,38 +1,47 @@
-# Submission checklist — 22 October 2026
+# Submission checklist — due 24 October 2026
 
-Current project context: [../CLAUDE.md](../CLAUDE.md). The assignment is not yet fully ready for final submission.
+Repository: https://github.com/Swagata-Bhowmik/group4-mlflow-capstone ·
+Live dashboard: https://group4-mlflow-capstone.onrender.com/
 
-## Completed and evidenced
+## Deliverables (brief section 6)
 
-- [x] Supplied data audited, hashes recorded, leakage-safe preprocessing and model comparison.
-- [x] Held-out final evaluation: MAE 5.77518 lakhs; RMSE 7.50646 lakhs.
-- [x] Eight-stage persisted workflow, reruns/logs, artifact integrity, MLflow tracking/registry.
-- [x] Local absolute/incumbent gates and safe bad-data/bad-model failure demonstrations.
-- [x] Local model rollback through in-process API checks.
-- [x] Three-batch drift/performance reports and configured operational alerts.
-- [x] GitHub repository and six initial AI-assisted import commits with both identities.
-- [x] Tests, dependency installation, Docker build and network container health passed in CI.
-- [x] Docker Hub images and GitHub releases published.
-- [x] Public Render Free API deployed; health, predictions, docs, lineage and metrics checked.
-- [x] Automatic main-branch deployment verified for b608040; release and deploy-render jobs passed.
-- [x] Real deployed source commit recorded in public model lineage.
-- [x] Two-page design and one-page reflection PDFs exist (need final refresh).
+| Deliverable | Where | Status |
+|---|---|---|
+| Repository: pipeline, configuration, tests, workflows, Dockerfile, README | `capstone/`, `config.yaml`, `tests/`, `.github/workflows/`, `Dockerfile`, `deploy/render/Dockerfile`, `README.md` | Done |
+| Design note (≤ 2 pages) with architecture diagram | `output/pdf/design_note.pdf` | Done |
+| Workflow graph, run history and registry screenshots | `output/screenshots/01_…`, `02_…`, `03_…`, `04_…` (index: `output/screenshots/README.md`) | Done |
+| Evidence of two failing-gate scenarios | `reports/live_safe_failures.json` (real HTTP server), `reports/safe_failures.json` (in-process), failed runs in `02_mlflow_run_history.png`, PR #2 | Done |
+| Lineage demonstration (live) | Dashboard **Lineage** tab, `/lineage`, `05_live_lineage.png`, `04_mlflow_run_detail.png` | Done — show live in the demo |
+| CI history incl. at least one release | GitHub Actions; PR #1 and #3 passed, PR #2 failed then passed; releases `build-<sha>`; screenshots `20_…` to `24_…` | Done |
+| Monitoring dashboard or report, three batches | Dashboard **Monitoring** tab, `reports/monitoring.html`, `reports/monitoring.json`, `14_dashboard_monitoring.png` | Done |
+| 5–10 minute demonstration | Script: `docs/DEMO.md` | **To do by the team: rehearse and record** |
+| Reflection (1 page) | `output/pdf/reflection.pdf` | Done — both read it and agree with it |
 
-## Required before final submission
+## Acceptance criteria evidence (brief section 5)
 
-- [ ] Safely reconcile local Git with remote and publish latest handoff/evidence.
-- [ ] Create genuine passing and intentional failing PR checks; fix and retain CI history.
-- [ ] Run full Compose monitoring services and capture real workflow/run/registry/dashboard screenshots.
-- [ ] Demonstrate safe-failure continuity against the actual network endpoint.
-- [ ] Demonstrate real deployed model/container/image rollback and capture evidence.
-- [ ] Document network latency, throughput and errors under a defined workload.
-- [ ] Record fresh-clone reproduction explicitly. CI fresh installs have passed, but the older reproduction.json used the existing interpreter.
-- [ ] Refresh PDFs for actual cloud architecture and limitations; rebuild the stale submission ZIP.
-- [ ] Rehearse/record the 5–10 minute demonstration with both students explaining/modifying the project.
-- [ ] Confirm professor's deadline/portal and submit.
+| Task | Evidence |
+|---|---|
+| 1 Framing | Numeric, justified thresholds and lifecycle mapping: design note §01–02 |
+| 2 Reproducibility | `reports/fresh_clone_reproduction.json` (clean clone + locked install, MAE within 1e-6); config validated on load (`capstone/config.py`) |
+| 3 Pipeline | `STAGES` in `capstone/core.py` = Pipeline tab; per-stage logs in `state/runs/*/run.json` and MLflow; `python -m capstone stage <name> --run <dir>` |
+| 4 Gates | Bad data → validate, bad model → evaluate, endpoint unchanged: `reports/live_safe_failures.json`; thresholds in `config.yaml` |
+| 5 Tracking/lineage | MLflow runs, registry aliases/tags; live `/lineage` |
+| 6 CI/CD | `ci.yml` (PR), `release.yml` (main → image tagged with SHA → release → Render), rollback tested: `reports/render_rollback.json`, procedure in `docs/OPERATIONS.md` |
+| 7 Serving/monitoring | `/metrics`, Operations tab, `reports/load_test.json`, monitoring report with alert rules and responses |
+| 8 Demo | `docs/DEMO.md` |
 
-## Evidence boundaries
+## Before submitting
 
-Render Free hosts an API with model state baked into each build. It does not host the full persistent MLflow/Prometheus/Grafana stack; runtime changes do not persist. Model state starts fresh on each build, so cross-release incumbent comparison on Render is not established. Do not label local TestClient benchmarks as network load tests or local model rollback as deployed-image rollback.
+- [ ] Both students rehearse `docs/DEMO.md` and record 5–10 minutes, each explaining a part.
+- [ ] Open the live dashboard shortly before the demo (free host wakes in ~1 minute).
+- [ ] Check every link in the PDFs and README opens.
+- [ ] Upload `group4_capstone_submission.zip` (built by `scripts/build_submission.sh`) plus the recording, through the professor's channel.
 
-See reports/render_auto_deployment.json for the verified automatic deployment; reports/render_deployment.json describes the earlier initial deployment. Historical local reports remain valid for their stated execution environment.
+## Honest limits to mention if asked
+
+- Render Free: one worker, sleeps when idle, no persistent state; every build retrains, so the
+  incumbent comparison across releases is proven locally, not on Render.
+- Latency target (p95 ≤ 200 ms) is **not** met with 5 concurrent clients on the free host; errors were 0.
+- Prometheus/Grafana are configured for a Docker host (`compose.yaml`) but were not run on a
+  persistent host; the dashboard and `/metrics` provide the live operational view.
+- Public API has no authentication.
