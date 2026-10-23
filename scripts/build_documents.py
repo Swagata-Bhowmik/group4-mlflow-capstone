@@ -8,7 +8,7 @@ import json
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, PageBreak, Spacer
-from reportlab.graphics.shapes import Drawing, Rect, String, Line, Polygon
+from reportlab.graphics.shapes import Drawing, Rect, String, Line, Polygon, Circle, Ellipse
 
 OUT = Path('output/pdf'); OUT.mkdir(parents=True, exist_ok=True)
 R = lambda name: json.loads((Path('reports') / name).read_text()) if (Path('reports') / name).exists() else None
@@ -65,37 +65,96 @@ def arrow(d, x1, y1, x2, y2, color=TEAL):
     d.add(Polygon([x2, y2, bx - Wd * math.sin(a), by + Wd * math.cos(a), bx + Wd * math.sin(a), by - Wd * math.cos(a)], fillColor=color, strokeColor=color))
 
 
+def badge(d, x, y, n, color=NAVY):
+    """Numbered step marker used on arrows and in the legend table."""
+    d.add(Circle(x, y, 6.2, fillColor=color, strokeColor=colors.white, strokeWidth=1))
+    d.add(String(x, y - 2.4, str(n), fontName='Helvetica-Bold', fontSize=7, fillColor=colors.white, textAnchor='middle'))
+
+
+def label(d, x, y, text, size=6.2, color=MUTED, anchor='middle', font='Helvetica-Oblique'):
+    d.add(String(x, y, text, fontName=font, fontSize=size, fillColor=color, textAnchor=anchor))
+
+
+def person(d, cx, y, color):
+    d.add(Circle(cx, y + 17, 5.5, fillColor=color, strokeColor=color))
+    d.add(Rect(cx - 9, y, 18, 10, rx=5, ry=5, fillColor=color, strokeColor=color))
+
+
+def cylinder(d, x, y, w, h, title, detail, color):
+    e = 5  # ellipse half-height
+    d.add(Rect(x, y + e, w, h - 2 * e, fillColor=colors.white, strokeColor=None))
+    d.add(Ellipse(x + w / 2, y + e, w / 2, e, fillColor=colors.white, strokeColor=color, strokeWidth=1.1))
+    d.add(Rect(x, y + e, w, h - 2 * e, fillColor=colors.white, strokeColor=None))
+    d.add(Line(x, y + e, x, y + h - e, strokeColor=color, strokeWidth=1.1)); d.add(Line(x + w, y + e, x + w, y + h - e, strokeColor=color, strokeWidth=1.1))
+    d.add(Ellipse(x + w / 2, y + h - e, w / 2, e, fillColor=PALE, strokeColor=color, strokeWidth=1.1))
+    d.add(String(x + w / 2, y + h - 19, title, fontName='Helvetica-Bold', fontSize=7.2, fillColor=NAVY, textAnchor='middle'))
+    for i, line in enumerate(detail.split('\n')):
+        d.add(String(x + w / 2, y + h - 28 - i * 7.6, line, fontName='Helvetica', fontSize=6, fillColor=MUTED, textAnchor='middle'))
+
+
+def zone(d, x, y, w, h, title, color):
+    d.add(Rect(x, y, w, h, rx=8, ry=8, fillColor=colors.HexColor('#f7f9fb'), strokeColor=color, strokeWidth=.8, strokeDashArray=[2, 2]))
+    d.add(Rect(x, y + h - 15, w, 15, rx=8, ry=8, fillColor=color, strokeColor=color))
+    d.add(Rect(x, y + h - 15, w, 7, fillColor=color, strokeColor=color))
+    d.add(String(x + w / 2, y + h - 11, title, fontName='Helvetica-Bold', fontSize=7, fillColor=colors.white, textAnchor='middle'))
+
+
 def architecture():
-    W = 523; d = Drawing(W, 222)
-    lanes = [(166, 'CODE & CI/CD  (GitHub Actions)', VIOLET), (100, 'PIPELINE  (capstone/core.py, persisted DAG)', BLUE), (8, 'SERVING & MONITORING', GREEN)]
-    for y, name, c in lanes:
-        d.add(Rect(0, y, W, 56 if y != 8 else 82, fillColor=colors.HexColor('#f7f9fb'), strokeColor=colors.HexColor('#e1e7ee'), strokeWidth=.5))
-        d.add(String(4, y + (47 if y != 8 else 73), name, fontName='Helvetica-Bold', fontSize=6.4, fillColor=c))
-    # CI lane
-    ci = [('Pull request', 'feature branch'), ('Quality checks', 'pytest + pipeline\nto model gate'), ('Merge to main', 'reviewed change'),
-          ('Build and release', 'tests, container smoke,\nDocker Hub image :sha'), ('deploy-render', 'exact commit, verify\n/health + /lineage'), ('Rollback workflow', 'redeploy a released\nbuild-<sha>')]
-    for i, (t, s) in enumerate(ci):
-        x = 6 + i * 86; box(d, x, 170, 80, 36, t, s, VIOLET, dashed=(i == 5))
-        if i < 5: arrow(d, x + 80, 188, x + 86, 188, VIOLET)
-    # Pipeline lane
-    stages = [('ingest', 'hash snapshot'), ('validate', 'DATA GATE'), ('features', 'fixed split'), ('train', 'Ridge a=10'),
-              ('evaluate', 'MODEL GATE'), ('register', 'MLflow version'), ('deploy', 'atomic pointer'), ('monitor', '3-batch drift')]
-    for i, (t, s) in enumerate(stages):
-        x = 6 + i * 64.5; gate = s.endswith('GATE'); box(d, x, 104, 59, 32, t, s, ORANGE if gate else BLUE, dashed=gate)
-        if i < 7: arrow(d, x + 59, 120, x + 64.5, 120, BLUE)
-    # Serving lane
-    serv = [(6, 'Prometheus + Grafana', 'scrape /metrics; alert rules\nfor latency, errors, model\nage (local Compose stack)', 116),
-            (130, 'MLflow', 'runs, metrics, lineage tags;\nregistry versions, lifecycle\ntags, champion alias', 116),
-            (254, 'Render Free container  (public)', 'Docker build runs the gated pipeline, then Uvicorn serves\nFastAPI: /predict (data checks), /health, /lineage, /metrics\nand the dashboard at / (7 tabs). One worker, 512 MB.', 263)]
-    for x, t, s, w in serv: box(d, x, 22, w, 50, t, s, GREEN)
-    # Prometheus scrapes the API: routed under the boxes so it never crosses text.
-    for x1, y1, x2, y2 in [(300, 22, 300, 14), (300, 14, 64, 14)]: d.add(Line(x1, y1, x2, y2, strokeColor=GREEN, strokeWidth=.9))
-    arrow(d, 64, 14, 64, 22, GREEN)
-    d.add(String(182, 16, 'Prometheus scrapes /metrics', fontName='Helvetica-Oblique', fontSize=5.8, fillColor=MUTED, textAnchor='middle'))
-    arrow(d, 6 + 4 * 86 + 40, 170, 6 + 4 * 86 + 40, 140, VIOLET)  # Render build runs the pipeline
-    arrow(d, 6 + 5 * 64.5 + 30, 104, 200, 74, BLUE)  # register -> MLflow registry
-    arrow(d, 6 + 6 * 64.5 + 30, 104, 420, 74, BLUE)  # deploy -> serving container
-    d.add(String(W - 4, 213, 'Dashed = gate or manual path. A failed gate stops the run; the serving model is unchanged.', fontName='Helvetica-Oblique', fontSize=6.3, fillColor=MUTED, textAnchor='end'))
+    """Left to right: develop -> CI/CD -> train and serve on Render -> use and monitor. Numbers match the table below."""
+    W, H = 523, 292; d = Drawing(W, H)
+    zone(d, 0, 4, 112, H - 6, '1  DEVELOP  (GitHub repo)', VIOLET)
+    zone(d, 120, 4, 124, H - 6, '2  CI/CD  (GitHub Actions)', BLUE)
+    zone(d, 252, 4, 164, H - 6, '3  TRAIN & SERVE  (Render container)', ORANGE)
+    zone(d, 424, 4, 99, H - 6, '4  USE & MONITOR', GREEN)
+
+    # 1 Develop
+    person(d, 56, 228, VIOLET); label(d, 56, 218, 'Swagata & Sumit', 6.4, NAVY, font='Helvetica-Bold')
+    box(d, 8, 136, 96, 62, 'Git repository', 'code (capstone/), tests\nconfig.yaml: every path,\nthreshold, hyperparameter\nworkflows, Dockerfiles', VIOLET)
+    cylinder(d, 14, 22, 84, 88, 'Supplied data', 'train: 4,000 listings\nincoming: 3 x 500\nversioned in Git,\nSHA-256 per run', VIOLET)
+    d.add(Line(56, 110, 56, 136, strokeColor=VIOLET, strokeWidth=.9, strokeDashArray=[2, 2]))
+    arrow(d, 56, 214, 56, 199, VIOLET); badge(d, 66, 207, 1)
+
+    # 2 CI/CD
+    box(d, 128, 196, 108, 58, 'PR: Quality checks', 'pytest (16 tests) +\npipeline up to the\nmodel gate. Fail = no\nmerge (PR #2)', ORANGE, dashed=True)
+    box(d, 128, 104, 108, 66, 'Merge: Build & release', 'tests + container smoke\nDocker image :<commit>\n-> Docker Hub\nGitHub release build-<sha>\nthen deploy that commit', BLUE)
+    box(d, 128, 22, 108, 52, 'Rollback workflow', 'manual: redeploy an\nearlier released commit,\nverify live /lineage', BLUE, dashed=True)
+    arrow(d, 104, 180, 128, 220, BLUE); badge(d, 114, 207, 2)
+    arrow(d, 182, 196, 182, 171, BLUE); label(d, 194, 181, 'merge', anchor='start'); badge(d, 172, 183, 3)
+
+    # 3 Train & serve
+    d.add(Rect(258, 146, 152, 116, rx=6, ry=6, fillColor=colors.white, strokeColor=ORANGE, strokeWidth=1.1))
+    d.add(String(334, 249, 'Gated pipeline  (8 stages)', fontName='Helvetica-Bold', fontSize=7.2, fillColor=NAVY, textAnchor='middle'))
+    stages = ['ingest', 'validate', 'features', 'train', 'evaluate', 'register', 'deploy', 'monitor']
+    for i, st in enumerate(stages):
+        row, col = divmod(i, 4); x = 263 + col * 36.5; y = 214 - row * 40
+        gate = st in ('validate', 'evaluate'); c = ORANGE if gate else BLUE
+        d.add(Rect(x, y, 33, 20, rx=4, ry=4, fillColor=colors.HexColor('#fdeee7') if gate else PALE, strokeColor=c, strokeWidth=.9, strokeDashArray=[2, 1.5] if gate else None))
+        d.add(String(x + 16.5, y + 7.5, st, fontName='Helvetica-Bold' if gate else 'Helvetica', fontSize=5.9, fillColor=NAVY, textAnchor='middle'))
+        if gate: d.add(String(x + 16.5, y - 6.5, 'DATA GATE' if st == 'validate' else 'MODEL GATE', fontName='Helvetica-Bold', fontSize=4.8, fillColor=ORANGE, textAnchor='middle'))
+        if col < 3: arrow(d, x + 33, y + 10, x + 36.5, y + 10, BLUE)
+    d.add(Line(263 + 3 * 36.5 + 16.5, 214, 263 + 3 * 36.5 + 16.5, 204, strokeColor=BLUE, strokeWidth=.9))
+    d.add(Line(263 + 3 * 36.5 + 16.5, 204, 279.5, 204, strokeColor=BLUE, strokeWidth=.9)); arrow(d, 279.5, 204, 279.5, 194, BLUE)
+    label(d, 334, 152, 'a failed gate stops the run; live model unchanged', 5.6, ORANGE)
+    arrow(d, 236, 137, 258, 190, BLUE); badge(d, 247, 162, 4)
+    arrow(d, 236, 48, 258, 150, BLUE)  # rollback redeploys the container
+    cylinder(d, 262, 22, 66, 100, 'MLflow', 'runs, metrics,\nlineage tags;\nregistry versions,\nchampion alias', ORANGE)
+    box(d, 336, 22, 72, 100, 'FastAPI service', '/predict (input\nchecks), /health,\n/lineage, /metrics\ndashboard at /\n1 worker, 512 MB', ORANGE)
+    arrow(d, 295, 146, 295, 123, ORANGE); badge(d, 305, 135, 5, ORANGE)
+    arrow(d, 372, 146, 372, 123, ORANGE); badge(d, 382, 135, 6, ORANGE)
+    label(d, 286, 135, 'register', anchor='end'); label(d, 362, 135, 'serve', anchor='end')
+
+    # 4 Use & monitor
+    person(d, 473, 228, GREEN); label(d, 473, 218, 'Founders / users', 6.4, NAVY, font='Helvetica-Bold')
+    box(d, 430, 138, 87, 66, 'Dashboard', 'predict a price,\nreal listings, pipeline,\nmonitoring, lineage\n(7 tabs, live)', GREEN)
+    box(d, 430, 22, 87, 88, 'Monitoring', 'drift + error per\nbatch (KS, TV, MAE)\nPrometheus scrapes\n/metrics; Grafana\nalert rules', GREEN)
+    arrow(d, 473, 214, 473, 205, GREEN)
+    arrow(d, 408, 95, 430, 170, GREEN); badge(d, 419, 145, 7, GREEN)
+    arrow(d, 408, 60, 430, 60, GREEN); badge(d, 419, 70, 8, GREEN)
+    # Feedback loop: an alert leads to a new change in the repo (back to step 1).
+    d.add(Line(473, 22, 473, 10, strokeColor=GREEN, strokeWidth=.9, strokeDashArray=[3, 2]))
+    d.add(Line(473, 10, 6, 10, strokeColor=GREEN, strokeWidth=.9, strokeDashArray=[3, 2]))
+    d.add(Line(6, 10, 6, 140, strokeColor=GREEN, strokeWidth=.9, strokeDashArray=[3, 2])); arrow(d, 6, 140, 8, 150, GREEN)
+    label(d, 240, 12.5, 'alert -> investigate -> retraining change via a new PR (back to 1)', 5.8, GREEN)
     return d
 
 
@@ -129,14 +188,16 @@ story = [
     para('02 / Architecture mapped to the MLOps lifecycle', 'Section'),
     architecture(),
     table([
-        ['Lifecycle stage', 'Components (where in the repository)'],
-        ['Problem framing, configuration', 'config.yaml validated on load by capstone/config.py (pydantic, extra keys forbidden); no hard-coded paths, thresholds or hyperparameters'],
-        ['Data management and versioning', 'Git-tracked CSVs; ingest snapshots and SHA-256 hashes every input; data hash tagged on each MLflow run'],
-        ['Model development', 'features/train/evaluate stages; experiments/ baseline comparison (Ridge vs gradient boosting vs random forest vs dummy)'],
-        ['Validation and governance', 'data gate (validate), model gate (evaluate), MLflow registry with lifecycle tags and champion alias'],
-        ['CI/CD and deployment', '.github/workflows: ci.yml (PR), release.yml (main → image → release → Render), rollback.yml; Dockerfiles; render.yaml'],
-        ['Monitoring and feedback', 'monitor stage (3-batch drift + labelled error), /metrics for Prometheus, Grafana dashboard, live dashboard tabs'],
-    ], [130, 393]),
+        ['#', 'What happens', 'MLOps lifecycle stage'],
+        ['1', 'Code, config.yaml (validated on load), tests and the supplied data are versioned together in Git.', 'Framing, data and configuration management'],
+        ['2', 'Every pull request runs the tests and the pipeline up to the model gate; a failing check blocks the merge.', 'Continuous integration'],
+        ['3', 'A merge builds and tests a container, tags the image with the commit, pushes it to Docker Hub and creates a release.', 'Continuous delivery'],
+        ['4', 'That exact commit is deployed to Render; the build runs the pipeline. Rollback redeploys an earlier release.', 'Deployment, orchestration'],
+        ['5', 'Validate and evaluate are quality gates; passing models are tracked and registered in MLflow with full lineage.', 'Validation, tracking, governance'],
+        ['6', 'The serving API answers /predict after the same input checks and exposes /lineage and /metrics.', 'Serving'],
+        ['7', 'Founders use the live dashboard: estimates, real listings, pipeline, monitoring and lineage.', 'Consumption, explainability'],
+        ['8', 'Batches are checked for drift and error; metrics feed alerts. An alert leads to a new gated change (back to 1).', 'Monitoring and feedback'],
+    ], [14, 380, 129]),
     PageBreak(),
     para('03 / Pipeline and gates — the workflow graph is the STAGES list in capstone/core.py', 'Section'),
     para('Eight stages run in order; each has declared inputs and outputs, persists its result and artifact hashes to the run directory and MLflow, and can be re-run alone '
