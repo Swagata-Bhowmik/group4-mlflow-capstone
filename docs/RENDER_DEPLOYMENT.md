@@ -1,21 +1,16 @@
 # Free public API demo on Render
 
-## Status
+## Status (23 October 2026)
 
-Deployed successfully on Render Free in Singapore.
+Live on Render Free (Singapore), deployed automatically from `main` by GitHub Actions.
 
-- API docs: https://group4-mlflow-capstone.onrender.com/docs
-- Health: https://group4-mlflow-capstone.onrender.com/health
-- Service ID: `srv-dbch1h5g1s2s73bimspg`
-- Latest verified deployment ID: `dep-dbcnth2vcj2c73f9lt2g`
-- Latest verified deployment commit: `b608040a3dd52dc2514ce018ab990ab7d443ff1a`
-- Initial deployment: all five endpoint checks returned HTTP 200; prediction returned 97.8148 lakhs.
-- Initial evidence: `reports/render_deployment.json`. Current automatic deployment evidence: `reports/render_auto_deployment.json`.
-- Render native After CI Checks Pass did not trigger the source update.
-- Direct GitHub Actions → Render API automation is enabled and verified.
-  Commit b608040a3dd52dc2514ce018ab990ab7d443ff1a deployed automatically,
-  and public lineage matches. See reports/render_auto_deployment.json.
-The Docker Hub release and GitHub release workflow have succeeded.
+- Dashboard: https://group4-mlflow-capstone.onrender.com/ · API docs: `/docs` · lineage: `/lineage`
+- Service ID: `srv-dbch1h5g1s2s73bimspg`; native Render auto-deploy is off (`render.yaml`).
+- Every merge to `main` runs *Build and release*; its `deploy-render` job deploys that exact commit and
+  fails unless live `/lineage` reports it. The live commit is always visible on the dashboard.
+- Rollback: *Roll back Render deployment* workflow (procedure in `OPERATIONS.md`, test in
+  `reports/render_rollback.json`).
+- Load test: `reports/load_test.json` (0 errors; p95 above 200 ms with 5 concurrent clients).
 
 ## What this deployment provides
 
@@ -29,7 +24,7 @@ Restarts restore that image's model instead of requiring persistent storage.
 This is a public demo of one release. It does not host the full Compose stack,
 retain new MLflow history across restarts, or supply a persistent monitoring
 server. Continue using Compose for the full monitoring and rollback demo.
-The free service has 512 MB memory; startup and one prediction succeeded within this plan; sustained load is untested.
+The free service has 512 MB memory and one worker; see reports/load_test.json for measured latency under load.
 It sleeps after 15 minutes without incoming traffic and can take time to wake.
 
 ## Account setup (already completed; recovery reference)

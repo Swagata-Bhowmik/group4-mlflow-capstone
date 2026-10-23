@@ -1,0 +1,56 @@
+{
+  "started": "2026-10-23T15:29:39.911373+00:00",
+  "workflow": ".github/workflows/rollback.yml",
+  "service": "https://group4-mlflow-capstone.onrender.com",
+  "steps": [
+    {
+      "step": "rollback",
+      "requested_commit": "d1fa909e94d29fb753b584547621edb6043d481e",
+      "workflow_run": "https://github.com/Swagata-Bhowmik/group4-mlflow-capstone/actions/runs/39978736394",
+      "conclusion": "success",
+      "minutes": 1.7,
+      "live_after": {
+        "commit": "d1fa909e94d29fb753b584547621edb6043d481e",
+        "model_version": 1,
+        "mlflow_run_id": "f0be21f1245e4a5996ac71806d6ad4b6",
+        "deployed_at": "2026-10-23T15:30:20.483816+00:00",
+        "predict_status": 200,
+        "price_lakhs": 97.81481556945359,
+        "dashboard_status": 404
+      },
+      "verified": true
+    },
+    {
+      "step": "roll forward",
+      "requested_commit": "6f426349a37a2d38af26e65b158a380fcf6cbac0",
+      "workflow_run": "https://github.com/Swagata-Bhowmik/group4-mlflow-capstone/actions/runs/39978996308",
+      "conclusion": "success",
+      "minutes": 1.7,
+      "live_after": {
+        "commit": "6f426349a37a2d38af26e65b158a380fcf6cbac0",
+        "model_version": 1,
+        "mlflow_run_id": "bc899faedd5c4edb9b36893d8a6cea39",
+        "deployed_at": "2026-10-23T15:32:07.331591+00:00",
+        "predict_status": 200,
+        "price_lakhs": 97.81481556945359,
+        "dashboard_status": 200
+      },
+      "verified": true
+    }
+  ],
+  "live_before": {
+    "commit": "6f426349a37a2d38af26e65b158a380fcf6cbac0",
+    "model_version": 1,
+    "mlflow_run_id": "c5b97572f56c4ad59df29ecf9487740e",
+    "deployed_at": "2026-10-23T15:27:29.568390+00:00",
+    "predict_status": 200,
+    "price_lakhs": 97.81481556945359,
+    "dashboard_status": 200
+  },
+  "from_commit": "6f426349a37a2d38af26e65b158a380fcf6cbac0",
+  "to_commit": "d1fa909e94d29fb753b584547621edb6043d481e",
+  "rollback_minutes": 1.7,
+  "rollforward_minutes": 1.7,
+  "passed": true,
+  "finished": "2026-10-23T15:33:11.422822+00:00"
+}
