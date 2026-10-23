@@ -27,7 +27,8 @@ def request_json(url, token=None, payload=None):
 def main():
     token = os.environ.get("RENDER_API_KEY", "").strip()
     service = os.environ.get("RENDER_SERVICE_ID", "")
-    commit = os.environ.get("GITHUB_SHA", "")
+    # Rollbacks name an earlier released commit; normal releases deploy the workflow's own commit.
+    commit = os.environ.get("DEPLOY_COMMIT") or os.environ.get("GITHUB_SHA", "")
     public_url = os.environ.get("CAPSTONE_PUBLIC_URL", "").rstrip("/")
     if not token or not re.fullmatch(r"srv-[a-z0-9]+", service):
         raise ValueError("Configure RENDER_API_KEY and RENDER_SERVICE_ID")

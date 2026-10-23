@@ -1,0 +1,76 @@
+{
+  "started": "2026-10-22T05:40:30.199117+00:00",
+  "repository": "https://github.com/Swagata-Bhowmik/group4-mlflow-capstone.git",
+  "ref": "main",
+  "host": "Darwin 25.5.0 arm64",
+  "bootstrap_python": "3.12.0",
+  "method": "git clone from GitHub; new virtual environment WITHOUT system site packages; pip install -r requirements.lock",
+  "commit": "f3c5a6e538dc39a905db157b25d4c8fe1e36b50b",
+  "installed_packages": 87,
+  "tests": "16 passed, 3 warnings in 45.07s",
+  "expected_validation_mae": 5.741987567526319,
+  "reproduced_validation_mae": 5.741987567526325,
+  "reproduced_validation_rmse": 7.522183872653143,
+  "absolute_difference": 6.217248937900877e-15,
+  "tolerance": 1e-06,
+  "passed": true,
+  "finished": "2026-10-22T05:42:38.212911+00:00",
+  "steps": [
+    {
+      "step": "clone",
+      "command": "git clone --quiet https://github.com/Swagata-Bhowmik/group4-mlflow-capstone.git /var/folders/g1/1q6s946x2pbc6r8f9vpw165r0000gn/T/group4-fresh-clone-1dqqtqf2/clone",
+      "returncode": 0,
+      "seconds": 1.0,
+      "output_tail": ""
+    },
+    {
+      "step": "checkout",
+      "command": "git checkout --quiet main",
+      "returncode": 0,
+      "seconds": 0.0,
+      "output_tail": ""
+    },
+    {
+      "step": "commit",
+      "command": "git rev-parse HEAD",
+      "returncode": 0,
+      "seconds": 0.0,
+      "output_tail": "f3c5a6e538dc39a905db157b25d4c8fe1e36b50b\n"
+    },
+    {
+      "step": "create clean venv",
+      "command": "/opt/anaconda3/bin/python3.12 -m venv /var/folders/g1/1q6s946x2pbc6r8f9vpw165r0000gn/T/group4-fresh-clone-1dqqtqf2/venv",
+      "returncode": 0,
+      "seconds": 1.4,
+      "output_tail": ""
+    },
+    {
+      "step": "install locked dependencies",
+      "command": "/var/folders/g1/1q6s946x2pbc6r8f9vpw165r0000gn/T/group4-fresh-clone-1dqqtqf2/venv/bin/python -m pip install --quiet --disable-pip-version-check -r requirements.lock",
+      "returncode": 0,
+      "seconds": 76.8,
+      "output_tail": ""
+    },
+    {
+      "step": "pip freeze",
+      "command": "/var/folders/g1/1q6s946x2pbc6r8f9vpw165r0000gn/T/group4-fresh-clone-1dqqtqf2/venv/bin/python -m pip freeze",
+      "returncode": 0,
+      "seconds": 0.3,
+      "output_tail": "o==4.12.1\nblinker==1.9.0\ncachetools==6.2.2\ncertifi==2026.4.22\ncffi==2.0.0\ncharset-normalizer==3.4.4\nclick==8.2.1\ncloudpickle==3.1.2\ncontourpy==1.3.3\ncryptography==46.0.7\ncycler==0.11.0\ndatabricks-sdk==0.146.0\ndocker==7.2.0\nfastapi==0.135.3\nFlask==3.1.3\nflask-cors==6.0.5\nfonttools==4.62.1\ngitdb==4.0.12\nGitPython==3.1.46\ngoogle-auth==2.55.0\ngraphene==3.4.3\ngraphql-core==3.2.6\ngraphql-relay==3.2.0\ngunicorn==23.0.0\nh11==0.16.0\nhttpcore==1.0.9\nhttpx==0.28.1\nhuey==2.5.4\nidna==3.19\nimportlib_metadata==8.7.1\niniconfig==2.3.0\nitsdangerous==2.2.0\nJinja2==3.1.6\njoblib==1.5.3\nkiwisolver==1.4.9\nMako==1.3.11\nMarkupSafe==3.0.2\nmatplotlib==3.10.8\nmlflow==3.10.1\nmlflow-skinny==3.10.1\nmlflow-tracing==3.10.1\nnumpy==2.3.5\nopentelemetry-api==1.45.0\nopentelemetry-proto==1.45.0\nopentelemetry-sdk==1.45.0\nopentelemetry-semantic-conventions==0.66b0\npackaging==26.0\npandas==2.3.3\npillow==12.2.0\npluggy==1.6.0\nprettytable==3.17.0\nprometheus_client==0.24.1\nprotobuf==5.29.6\npyarrow==21.0.0\npyasn1==0.6.3\npyasn1_modules==0.4.2\npycparser==3.0\npydantic==2.13.4\npydantic_core==2.46.4\nPygments==2.20.0\npyparsing==3.2.5\npytest==9.0.3\npython-dateutil==2.9.0.post0\npython-dotenv==1.1.0\npytz==2026.1.post1\nPyYAML==6.0.3\nrequests==2.33.1\nscikit-learn==1.8.0\nscipy==1.16.3\nsix==1.17.0\nskops==0.16.0\nsmmap==4.0.0\nSQLAlchemy==2.0.48\nsqlparse==0.6.0\nstarlette==0.52.1\nthreadpoolctl==3.5.0\ntyping-inspection==0.4.2\ntyping_extensions==4.15.0\ntzdata==2025.2\nurllib3==2.6.3\nuvicorn==0.44.0\nwcwidth==0.2.14\nWerkzeug==3.1.6\nzipp==3.23.0\n"
+    },
+    {
+      "step": "tests",
+      "command": "/var/folders/g1/1q6s946x2pbc6r8f9vpw165r0000gn/T/group4-fresh-clone-1dqqtqf2/venv/bin/python -m pytest -q -p no:cacheprovider",
+      "returncode": 0,
+      "seconds": 46.3,
+      "output_tail": "................                                                         [100%]\n=============================== warnings summary ===============================\ntests/test_capstone.py::test_full_safe_failure_and_rollback_demo\ntests/test_capstone.py::test_full_safe_failure_and_rollback_demo\ntests/test_capstone.py::test_dashboard_views_report_serving_run\n  /var/folders/g1/1q6s946x2pbc6r8f9vpw165r0000gn/T/group4-fresh-clone-1dqqtqf2/venv/lib/python3.12/site-packages/mlflow/types/utils.py:452: UserWarning: Hint: Inferred schema contains integer column(s). Integer columns in Python cannot represent missing values. If your input data contains missing values at inference time, it will be encoded as floats and will cause a schema enforcement error. The best way to avoid this problem is to infer the model schema based on a realistic data sample (training dataset) that includes missing values. Alternatively, you can declare integer columns as doubles (float64) whenever these columns may have missing values. See `Handling Integers With Missing Values <https://www.mlflow.org/docs/latest/models.html#handling-integers-with-missing-values>`_ for more details.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n16 passed, 3 warnings in 45.07s\n"
+    },
+    {
+      "step": "pipeline to model gate",
+      "command": "/var/folders/g1/1q6s946x2pbc6r8f9vpw165r0000gn/T/group4-fresh-clone-1dqqtqf2/venv/bin/python -m capstone run --stop-after evaluate",
+      "returncode": 0,
+      "seconds": 2.2,
+      "output_tail": "800, \"features\": [\"Area_sqft\", \"Bedrooms\", \"Bathrooms\", \"Age_Years\", \"Distance_to_Center_km\", \"Neighborhood_Score\", \"Has_Parking\", \"Property_Condition\", \"City_Zone\"]}, \"artifacts\": {\"train.csv\": \"f5dc5cb8602bd3cda4a992ec716565c85e393e405d2cf8e8312b6e2caeddbcd4\", \"validation.csv\": \"3ff050932098ee1024861608bcab5095fd52cb4d6dc7e530a9e0dfbbbaacede9\", \"test.csv\": \"a10e352fa34e41479ee961832c35e6e813e4de65ee8c080539f51fcf87e198ef\"}}\n{\"run\": \"9f7258208d6d4f0ab7e4b0f3b4832dde\", \"stage\": \"train\", \"status\": \"PASSED\", \"at\": \"2026-10-22T05:42:37.915411+00:00\", \"seconds\": 0.008706332999281585, \"result\": {\"model_kind\": \"ridge\", \"sha256\": \"fd80459730f8ead97d84ca556f79110362b1c9bac96e00a41215d1c7a4074872\"}, \"artifacts\": {\"model.joblib\": \"fd80459730f8ead97d84ca556f79110362b1c9bac96e00a41215d1c7a4074872\"}}\n{\"run\": \"9f7258208d6d4f0ab7e4b0f3b4832dde\", \"stage\": \"evaluate\", \"status\": \"PASSED\", \"at\": \"2026-10-22T05:42:37.928393+00:00\", \"seconds\": 0.01166204095352441, \"result\": {\"metrics\": {\"mae\": 5.741987567526325, \"rmse\": 7.522183872653143}, \"passed\": true, \"errors\": [], \"champion_version\": null, \"model_sha256\": \"fd80459730f8ead97d84ca556f79110362b1c9bac96e00a41215d1c7a4074872\"}, \"artifacts\": {\"evaluation.json\": \"6d155f440db2896c54e113bfc6b098ddb99f93632626ee2c3383e0a9076c5342\"}}\nRUN_DIRECTORY=state/runs/9f7258208d6d4f0ab7e4b0f3b4832dde\n2026/10/22 11:12:37 INFO mlflow.store.db.utils: Creating initial MLflow database tables...\n2026/10/22 11:12:37 INFO mlflow.store.db.utils: Updating database tables\n"
+    }
+  ]
+}
