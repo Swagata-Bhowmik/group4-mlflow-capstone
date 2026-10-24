@@ -9,7 +9,7 @@ REPO=https://github.com/Swagata-Bhowmik/group4-mlflow-capstone
 LIVE=https://group4-mlflow-capstone.onrender.com
 OUT=group4_capstone_submission
 tmp=$(mktemp -d); pkg="$tmp/$OUT"
-mkdir -p "$pkg"/{1_design_note,2_screenshots,3_failing_gate_evidence,4_lineage,5_ci_history,6_monitoring,7_reflection,8_demonstration}
+mkdir -p "$pkg"/{1_design_note,2_screenshots,3_failing_gate_evidence,4_lineage,5_ci_history,6_monitoring,7_reflection,8_demonstration,9_presentation}
 
 cp output/pdf/design_note.pdf "$pkg/1_design_note/"
 cp output/screenshots/0[1-4]_*.png "$pkg/2_screenshots/"
@@ -20,6 +20,7 @@ curl -fsS -m 120 "$LIVE/lineage" | python3 -m json.tool > "$pkg/4_lineage/live_l
 cp output/screenshots/2[0-4]_*.png reports/render_rollback.json "$pkg/5_ci_history/"
 cp reports/monitoring.html reports/monitoring.json reports/load_test.json output/screenshots/1[0134]_*.png output/screenshots/15_*.png "$pkg/6_monitoring/"
 cp output/pdf/reflection.pdf "$pkg/7_reflection/"
+cp output/pdf/presentation.pdf "$pkg/9_presentation/"
 
 cat > "$pkg/README.md" <<EOF
 # Group 4 · Project 4 Capstone: End-to-End MLflow Pipeline
@@ -42,6 +43,7 @@ Swagata Bhowmik (B053) · Sumit Kothari (B062) · Dr. Santosh Kumar
 | Monitoring covering the three batches | 6_monitoring/monitoring.html (open in a browser), monitoring.json, dashboard screenshots, load test |
 | 5–10 minute demonstration | 8_demonstration/ |
 | Reflection (1 page) | 7_reflection/reflection.pdf |
+| Presentation (12 slides) | 9_presentation/presentation.pdf |
 
 Built from commit $(git rev-parse --short HEAD).
 EOF
