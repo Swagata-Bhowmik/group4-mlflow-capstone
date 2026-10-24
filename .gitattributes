@@ -1,0 +1,2 @@
+# Keep data files byte-identical on every OS so their SHA-256 lineage hashes match.
+*.csv -text
