@@ -118,8 +118,3 @@ docker compose up -d api mlflow prometheus grafana   # ports 8000, 5000, 9090, 3
 Render Free runs one worker with no persistent state or authentication, so the incumbent comparison
 across releases is shown locally rather than on Render. The latency target is not met under concurrent
 load on the free host. Prometheus and Grafana run only on a Docker host.
-
-## How we built this
-
-We used an AI coding assistant for much of the implementation. We set the requirements and
-thresholds, checked every result against the recorded evidence, and can explain and modify every stage.
