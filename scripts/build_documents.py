@@ -11,10 +11,10 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, 
 from reportlab.graphics.shapes import Drawing, Rect, String, Line, Polygon, Circle, Ellipse
 
 OUT = Path('output/pdf'); OUT.mkdir(parents=True, exist_ok=True)
-R = lambda name: json.loads((Path('reports') / name).read_text()) if (Path('reports') / name).exists() else None
+R = lambda name: json.loads((Path('reports') / name).read_text(encoding='utf-8')) if (Path('reports') / name).exists() else None
 DATE = '23 OCT 2026'
 
-baseline = {r['model']: r for r in json.loads(Path('experiments/baseline_results/results.json').read_text())['results']}
+baseline = {r['model']: r for r in json.loads(Path('experiments/baseline_results/results.json').read_text(encoding='utf-8'))['results']}
 ridge = baseline['ridge']; final = R('final_test.json'); mon = R('monitoring.json')
 live = R('live_safe_failures.json'); load = R('load_test.json'); fresh = R('fresh_clone_reproduction.json'); rollback = R('render_rollback.json')
 b = {x['batch']: x for x in mon['batches']}

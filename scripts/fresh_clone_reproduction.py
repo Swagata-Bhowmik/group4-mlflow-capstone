@@ -49,10 +49,10 @@ with tempfile.TemporaryDirectory(prefix='group4-fresh-clone-') as tmp:
         tests = run('tests', [python, '-m', 'pytest', '-q', '-p', 'no:cacheprovider'], clone, env)
         report['tests'] = tests.strip().splitlines()[-1]
         run('pipeline to model gate', [python, '-m', 'capstone', 'run', '--stop-after', 'evaluate'], clone, env)
-        evaluation = json.loads(next((clone / 'state' / 'runs').glob('*/evaluation.json')).read_text())
-        expected = json.loads((clone / 'experiments/baseline_results/results.json').read_text())['results'][0]['validation_mae_lakhs']
+        evaluation = json.loads(next((clone / 'state' / 'runs').glob('*/evaluation.json')).read_text(encoding='utf-8'))
+        expected = json.loads((clone / 'experiments/baseline_results/results.json').read_text(encoding='utf-8'))['results'][0]['validation_mae_lakhs']
         import yaml  # noqa: E402  (bootstrap interpreter only parses the cloned config)
-        tolerance = yaml.safe_load((clone / 'config.yaml').read_text())['quality']['reproducibility_tolerance']
+        tolerance = yaml.safe_load((clone / 'config.yaml').read_text(encoding='utf-8'))['quality']['reproducibility_tolerance']
         delta = abs(expected - evaluation['metrics']['mae'])
         report.update({'expected_validation_mae': expected, 'reproduced_validation_mae': evaluation['metrics']['mae'],
                        'reproduced_validation_rmse': evaluation['metrics']['rmse'], 'absolute_difference': delta,
@@ -61,6 +61,6 @@ with tempfile.TemporaryDirectory(prefix='group4-fresh-clone-') as tmp:
         report.update({'passed': False, 'error': str(exc)})
     report['finished'] = datetime.now(timezone.utc).isoformat()
     report['steps'] = steps
-    (root / 'reports' / 'fresh_clone_reproduction.json').write_text(json.dumps(report, indent=2) + '\n')
+    (root / 'reports' / 'fresh_clone_reproduction.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     print(json.dumps({k: report.get(k) for k in ['commit', 'tests', 'reproduced_validation_mae', 'absolute_difference', 'passed', 'error']}, indent=2))
     sys.exit(0 if report['passed'] else 1)

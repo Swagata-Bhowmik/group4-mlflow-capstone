@@ -11,16 +11,16 @@ from capstone.api import create_app
 
 @pytest.fixture
 def cfg_path(tmp_path):
-    c=yaml.safe_load(Path('config.yaml').read_text())
+    c=yaml.safe_load(Path('config.yaml').read_text(encoding='utf-8'))
     c['paths']['state']=str(tmp_path/'state'); c['paths']['reports']=str(tmp_path/'reports')
-    p=tmp_path/'config.yaml';p.write_text(yaml.safe_dump(c));return p
+    p=tmp_path/'config.yaml';p.write_text(yaml.safe_dump(c), encoding='utf-8');return p
 
 def test_configuration_rejects_invalid_split(cfg_path):
-    c=yaml.safe_load(cfg_path.read_text());c['split']['validation']=.9;cfg_path.write_text(yaml.safe_dump(c))
+    c=yaml.safe_load(cfg_path.read_text(encoding='utf-8'));c['split']['validation']=.9;cfg_path.write_text(yaml.safe_dump(c), encoding='utf-8')
     with pytest.raises(ValueError):load(cfg_path)
 
 def test_configuration_rejects_feature_leakage(cfg_path):
-    c=yaml.safe_load(cfg_path.read_text());c['features']['numeric'].append('Price_Lakhs');cfg_path.write_text(yaml.safe_dump(c))
+    c=yaml.safe_load(cfg_path.read_text(encoding='utf-8'));c['features']['numeric'].append('Price_Lakhs');cfg_path.write_text(yaml.safe_dump(c), encoding='utf-8')
     with pytest.raises(ValueError):load(cfg_path)
 
 @pytest.mark.parametrize('change',['missing','category','infinity','duplicate','fractional','extra'])
@@ -58,7 +58,7 @@ def test_split_preprocessing_and_baseline_reproduction(cfg_path):
     assert abs(run.meta['stages']['evaluate']['result']['metrics']['mae']-5.741987567526319)<run.cfg.quality.reproducibility_tolerance
 
 def test_model_gate_failure_has_no_production(cfg_path):
-    c=yaml.safe_load(cfg_path.read_text());c['model']['kind']='dummy';cfg_path.write_text(yaml.safe_dump(c))
+    c=yaml.safe_load(cfg_path.read_text(encoding='utf-8'));c['model']['kind']='dummy';cfg_path.write_text(yaml.safe_dump(c), encoding='utf-8')
     with pytest.raises(GateError):pipeline(cfg_path)
     assert production(load(cfg_path)) is None
 
@@ -69,9 +69,9 @@ def test_full_safe_failure_and_rollback_demo(cfg_path):
     from capstone.demo import demonstrate
     demonstrate(cfg_path)
     cfg=load(cfg_path)
-    report=json.loads((Path(cfg.paths.reports)/'safe_failures.json').read_text())
+    report=json.loads((Path(cfg.paths.reports)/'safe_failures.json').read_text(encoding='utf-8'))
     assert all(s['production_manifest_unchanged'] for s in report['scenarios'])
-    assert json.loads((Path(cfg.paths.reports)/'rollback.json').read_text())['status']=='PASSED'
+    assert json.loads((Path(cfg.paths.reports)/'rollback.json').read_text(encoding='utf-8'))['status']=='PASSED'
     client=TestClient(create_app(cfg_path))
     assert client.get('/health').status_code==200
     assert 'prediction_requests_total' in client.get('/metrics').text
@@ -81,7 +81,7 @@ def test_full_safe_failure_and_rollback_demo(cfg_path):
 def test_modified_upstream_artifact_is_rejected(cfg_path):
     run=pipeline(cfg_path,stop_after='features')
     path=run.directory/'train.csv'
-    path.write_text(path.read_text()+'\n')
+    path.write_text(path.read_text()+'\n', encoding='utf-8')
     with pytest.raises(GateError,match='Upstream artifact changed'):run.stage('train')
 
 def test_champion_comparison_can_reject_despite_absolute_pass(cfg_path):
@@ -98,7 +98,7 @@ def test_champion_comparison_can_reject_despite_absolute_pass(cfg_path):
     write_json(Path(run.cfg.paths.state)/'production.json',{'version':'test-incumbent','model_path':str(champion)})
     run.cfg.quality.max_relative_regression=0
     with pytest.raises(GateError,match='regresses'):run.stage('evaluate')
-    evidence=json.loads((run.directory/'evaluation.json').read_text())
+    evidence=json.loads((run.directory/'evaluation.json').read_text(encoding='utf-8'))
     assert evidence['metrics']['mae']<run.cfg.quality.max_mae
 
 def test_dashboard_views_report_serving_run(cfg_path):

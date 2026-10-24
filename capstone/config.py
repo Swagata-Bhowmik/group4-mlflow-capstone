@@ -105,6 +105,6 @@ class Config(Strict):
         return self
 
 def load(path='config.yaml'):
-    return Config.model_validate(yaml.safe_load(Path(path).read_text()))
+    return Config.model_validate(yaml.safe_load(Path(path).read_text(encoding='utf-8')))
 
 def digest(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()

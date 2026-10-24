@@ -30,7 +30,7 @@ def demonstrate(config_path='config.yaml'):
         if name=='bad_data': input_path=bad_path
         else:
             badcfg=cfg.model_dump(); badcfg['model']['kind']='dummy'
-            config=fixture/'bad_model.yaml'; config.write_text(yaml.safe_dump(badcfg,sort_keys=False))
+            config=fixture/'bad_model.yaml'; config.write_text(yaml.safe_dump(badcfg,sort_keys=False), encoding='utf-8')
         try:
             pipeline(config,input_path)
         except GateError as exc:
@@ -65,7 +65,7 @@ def demonstrate(config_path='config.yaml'):
                  'latency_target_passed':bool(np.quantile(timings,.95)<=cfg.monitoring.p95_latency_seconds),
                  'error_target_passed':failures_count/len(timings)<=cfg.monitoring.max_error_rate}
     write_json(reports/'operational.json',operational)
-    (reports/'prometheus_metrics.txt').write_text(client.get('/metrics').text)
+    (reports/'prometheus_metrics.txt').write_text(client.get('/metrics').text, encoding='utf-8')
     write_json(reports/'lineage.json',client.get('/lineage').json())
     assert sources=={p:digest(p) for p in sources}
     write_json(reports/'source_integrity.json',{'unchanged':True,'sha256':sources})

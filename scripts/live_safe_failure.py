@@ -72,7 +72,7 @@ try:
     bad = pd.read_csv(cfg.paths.training); bad.loc[:int(len(bad) * .2), 'Age_Years'] = np.nan
     bad_data = fixture / 'bad_missingness.csv'; bad.to_csv(bad_data, index=False)
     badcfg = cfg.model_dump(by_alias=True); badcfg['model']['kind'] = 'dummy'
-    bad_model = fixture / 'bad_model.yaml'; bad_model.write_text(yaml.safe_dump(badcfg, sort_keys=False))
+    bad_model = fixture / 'bad_model.yaml'; bad_model.write_text(yaml.safe_dump(badcfg, sort_keys=False), encoding='utf-8')
     scenarios = [('bad_data', 'Training file with 20% of Age_Years blanked (limit 8%)', ['--config', args.config, 'run', '--input', str(bad_data)]),
                  ('bad_model', 'Configuration switched to a median-only dummy model', ['--config', str(bad_model), 'run'])]
     results = []
