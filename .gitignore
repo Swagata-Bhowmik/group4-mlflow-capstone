@@ -13,3 +13,6 @@ experiments/baseline_results/selected_model.joblib
 tmp/
 *.zip
 setup-git-identities.local.sh
+.claude/
+group4_capstone_submission/
+mlops-ppt/
