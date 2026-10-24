@@ -1,6 +1,5 @@
 """Persisted DAG stages. Only this module's deployment operations change production."""
 import contextlib
-import fcntl
 import hashlib
 import json
 import os
@@ -9,6 +8,12 @@ import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+
+try:  # POSIX file locks; Windows uses msvcrt below.
+    import fcntl
+except ImportError:
+    fcntl = None
+    import msvcrt
 
 import joblib
 import mlflow
@@ -44,7 +49,7 @@ def read_json(path): return json.loads(Path(path).read_text())
 
 def setup_tracking(cfg):
     state = Path(cfg.paths.state).resolve(); state.mkdir(parents=True, exist_ok=True)
-    mlflow.set_tracking_uri('sqlite:///' + str(state / 'mlflow.db'))
+    mlflow.set_tracking_uri('sqlite:///' + (state / 'mlflow.db').as_posix())
     client = MlflowClient()
     exp = client.get_experiment_by_name(cfg.tracking.experiment)
     eid = exp.experiment_id if exp else client.create_experiment(cfg.tracking.experiment, artifact_location=(state/'mlartifacts').as_uri())
@@ -53,10 +58,13 @@ def setup_tracking(cfg):
 @contextlib.contextmanager
 def deployment_lock(cfg):
     path = Path(cfg.paths.state); path.mkdir(parents=True, exist_ok=True)
-    with (path/'deployment.lock').open('a') as f:
-        fcntl.flock(f, fcntl.LOCK_EX)
+    with (path/'deployment.lock').open('a+') as f:
+        if fcntl: fcntl.flock(f, fcntl.LOCK_EX)
+        else: f.seek(0); msvcrt.locking(f.fileno(), msvcrt.LK_LOCK, 1)
         try: yield
-        finally: fcntl.flock(f, fcntl.LOCK_UN)
+        finally:
+            if fcntl: fcntl.flock(f, fcntl.LOCK_UN)
+            else: f.seek(0); msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
 
 def production(cfg):
     path = Path(cfg.paths.state)/'production.json'
@@ -64,7 +72,7 @@ def production(cfg):
 
 def code_snapshot():
     paths = sorted([*Path('capstone').glob('*.py'), Path('requirements.txt')])
-    hashes = {str(p): digest(p) for p in paths if p.exists()}
+    hashes = {p.as_posix(): digest(p) for p in paths if p.exists()}
     return {'sha256': hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest(),
             'files': hashes, 'commit': os.environ.get('GITHUB_SHA', 'uncommitted-local-source')}
 

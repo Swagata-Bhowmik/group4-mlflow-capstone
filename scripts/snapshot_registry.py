@@ -1,5 +1,7 @@
 """Export actual MLflow records for portable evidence, not fabricated UI screenshots."""
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # run from any folder, no PYTHONPATH needed
 from capstone.config import load
 from capstone.core import setup_tracking, write_json
 cfg=load();client,eid=setup_tracking(cfg)

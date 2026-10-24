@@ -55,4 +55,4 @@ executed on a real Docker host.
 
 ## Limitations and scope
 
-This local workflow intentionally uses one worker and POSIX filesystem locks. It has no distributed scheduler, retries, multi-host lock, authentication, high-availability database, or outbound notifications. Registry labels are descriptive; the API follows the serving manifest. Compare alias and manifest after interrupted promotions. Source snapshots and hashes support current local provenance; GitHub history and deployed commit lineage are now verified; see ../CLAUDE.md. Paths in saved local manifests must be regenerated for a different computer/container.
+This local workflow intentionally uses one worker and a filesystem lock (POSIX or Windows). It has no distributed scheduler, retries, multi-host lock, authentication, high-availability database, or outbound notifications. Registry labels are descriptive; the API follows the serving manifest. Compare alias and manifest after interrupted promotions. Source snapshots and hashes support local provenance; deployed runs also record the Git commit. Paths in saved local manifests must be regenerated for a different computer/container.
