@@ -16,9 +16,6 @@ Swagata Bhowmik (B053) · Sumit Kothari (B062) · Elective II: Machine Learning 
 | 6 | **CI history including releases** | [05_ci_history_and_releases/](05_ci_history_and_releases/) · [Actions](https://github.com/Swagata-Bhowmik/group4-mlflow-capstone/actions) · [Releases](https://github.com/Swagata-Bhowmik/group4-mlflow-capstone/releases) |
 | 7 | **Monitoring of the three incoming batches** | [06_monitoring/](06_monitoring/) — open `monitoring.html` in a browser |
 | 8 | **Reflection** (1 page) | [07_reflection/reflection.pdf](07_reflection/reflection.pdf) |
-| 9 | **Demonstration video** | [08_demonstration/Group4_Project_Demo_Video.mp4](08_demonstration/Group4_Project_Demo_Video.mp4) |
-| 10 | **Presentation** (12 slides) | [09_presentation/Group4_Presentation.pdf](09_presentation/Group4_Presentation.pdf) |
-| 11 | **Project report** (Word and PDF) | [10_report/](10_report/) |
 
 ## What is in each folder
 
