@@ -42,10 +42,10 @@ def now(): return datetime.now(timezone.utc).isoformat()
 def write_json(path, value):
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_name(path.name + '.' + uuid.uuid4().hex + '.tmp')
-    temp.write_text(json.dumps(value, indent=2, allow_nan=False) + '\n')
+    temp.write_text(json.dumps(value, indent=2, allow_nan=False) + '\n', encoding='utf-8')
     os.replace(temp, path)
 
-def read_json(path): return json.loads(Path(path).read_text())
+def read_json(path): return json.loads(Path(path).read_text(encoding='utf-8'))
 
 def setup_tracking(cfg):
     state = Path(cfg.paths.state).resolve(); state.mkdir(parents=True, exist_ok=True)

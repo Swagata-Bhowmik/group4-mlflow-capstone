@@ -83,4 +83,4 @@ try:
 finally:
     record['finished'] = datetime.now(timezone.utc).isoformat()
     record.setdefault('passed', False)
-    Path('reports/render_rollback.json').write_text(json.dumps(record, indent=2) + '\n')
+    Path('reports/render_rollback.json').write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8')

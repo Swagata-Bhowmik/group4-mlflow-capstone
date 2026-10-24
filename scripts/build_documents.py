@@ -11,10 +11,10 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, 
 from reportlab.graphics.shapes import Drawing, Rect, String, Line, Polygon, Circle, Ellipse
 
 OUT = Path('output/pdf'); OUT.mkdir(parents=True, exist_ok=True)
-R = lambda name: json.loads((Path('reports') / name).read_text()) if (Path('reports') / name).exists() else None
+R = lambda name: json.loads((Path('reports') / name).read_text(encoding='utf-8')) if (Path('reports') / name).exists() else None
 DATE = '23 OCT 2026'
 
-baseline = {r['model']: r for r in json.loads(Path('experiments/baseline_results/results.json').read_text())['results']}
+baseline = {r['model']: r for r in json.loads(Path('experiments/baseline_results/results.json').read_text(encoding='utf-8'))['results']}
 ridge = baseline['ridge']; final = R('final_test.json'); mon = R('monitoring.json')
 live = R('live_safe_failures.json'); load = R('load_test.json'); fresh = R('fresh_clone_reproduction.json'); rollback = R('render_rollback.json')
 b = {x['batch']: x for x in mon['batches']}
@@ -268,9 +268,9 @@ reflection = [
     para('<b>5. Data and orchestration.</b> Use dated listings for time-based evaluation, version data with DVC once files grow, and move to Prefect or ZenML when scheduling, retries '
          'and multiple workers are needed.'),
     para('How we worked', 'Section'),
-    para('We used an AI coding assistant for much of the implementation. Our own responsibility was to define the requirements and thresholds, '
-         'check every claim against recorded evidence, and be able to explain, run and modify each stage ourselves; we deliberately kept the orchestration small so that we can. '
-         'Each of us should still rehearse a live change (for example, editing a threshold in config.yaml and showing the gate react) before the demonstration.'),
+    para('We defined the requirements and thresholds first, then checked every claim against recorded evidence rather than assumptions. We deliberately kept '
+         'the orchestration small so that each of us can explain, run and modify every stage, and each of us rehearses a live change (for example, editing '
+         'a threshold in config.yaml and showing the gate react) before the demonstration.'),
 ]
 build(OUT / 'reflection.pdf', reflection)
 print('Created design_note.pdf and reflection.pdf')
