@@ -268,7 +268,7 @@ reflection = [
     para('<b>5. Data and orchestration.</b> Use dated listings for time-based evaluation, version data with DVC once files grow, and move to Prefect or ZenML when scheduling, retries '
          'and multiple workers are needed.'),
     para('How we worked', 'Section'),
-    para('We used an AI coding assistant for much of the implementation, and our commit messages say so. Our own responsibility was to define the requirements and thresholds, '
+    para('We used an AI coding assistant for much of the implementation. Our own responsibility was to define the requirements and thresholds, '
          'check every claim against recorded evidence, and be able to explain, run and modify each stage ourselves; we deliberately kept the orchestration small so that we can. '
          'Each of us should still rehearse a live change (for example, editing a threshold in config.yaml and showing the gate react) before the demonstration.'),
 ]
